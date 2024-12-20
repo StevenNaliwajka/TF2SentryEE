@@ -4,9 +4,9 @@ import cv2
 import numpy as np
 
 class PiCamera(Camera):
-    def __init__(self, resolution=(640,480), cap_fps=30) -> None:
+    def __init__(self, resolution=(640,480), cap_fps=30,camera_num:int=0) -> None:
         super().__init__(resolution, cap_fps)
-        self.camera = Picamera2()
+        self.camera = Picamera2(camera_num)
         # Note here that RGB888 is actually BGR with 8 bits for each color (as defined in the libcamera/picamera2 docs)
         config = self.camera.create_video_configuration(main={"format": 'RGB888',"size": (resolution[0], resolution[1])})
         self.camera.configure(config)
