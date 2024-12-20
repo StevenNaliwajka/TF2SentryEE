@@ -7,7 +7,8 @@ class PiCamera(Camera):
     def __init__(self, resolution=(640,480), cap_fps=30) -> None:
         super().__init__(resolution, cap_fps)
         self.camera = Picamera2()
-        config = self.camera.create_video_configuration(main={"format": 'YUV420',"size": (resolution[0], resolution[1])})
+        # Note here that RGB888 is actually BGR with 8 bits for each color (as defined in the libcamera/picamera2 docs)
+        config = self.camera.create_video_configuration(main={"format": 'RGB888',"size": (resolution[0], resolution[1])})
         self.camera.configure(config)
         self.camera.start()
         self.raw_buffer:memoryview = None
@@ -20,7 +21,7 @@ class PiCamera(Camera):
         if self.raw_buffer is None:
             return False, np.array([])
 
-        raw_data = np.frombuffer(self.raw_buffer,dtype=np.uint8)
-        return True, raw_data.reshape((self.RESOLUTION[1] * 3 // 2, self.RESOLUTION[0]))
+        return True, np.reshape(np.frombuffer(self.raw_buffer,dtype=np.uint8),
+                                (self.RESOLUTION[1],self.RESOLUTION[0],3))
 
     
