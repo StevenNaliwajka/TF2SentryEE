@@ -23,15 +23,12 @@ class DefaultCamera(Camera):
         print("Using backend:",self.cap.getBackendName())
         print("FPS: ",self.cap.get(cv2.CAP_PROP_FPS))
 
+    def get_frame(self) -> None:
+        self.cap.grab()
 
-
-    def get_frame(self) -> cv2.typing.MatLike:
+    def decode_frame(self) -> tuple[bool, cv2.typing.MatLike]:
         """
         Returns the frame that the camera is currently reading.
-        returns img:MatLike row,col,BGR
+        returns img:MatLike row,col,BGR24 (8 bits per color)
         """
-        ret_val, img = self.cap.read()
-        if ret_val:
-            return img
-        else:
-            raise RuntimeError("frame was unable to be read...")
+        return self.cap.retrieve()
