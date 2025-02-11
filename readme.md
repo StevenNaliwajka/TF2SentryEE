@@ -10,8 +10,8 @@ to create a fully functioning level one sentry from TF2 using an AIRSOFT gun.
 Inbetween classes and work each of us have put countless hours into creating a cool project.
 
 The work can be broken up into 3 repos.
-- [Maiikiru's CV Repo](https://github.com/Maiikiru/TF2SentrySource) for the brain and the logic
-- [Bradon's CAD Repo](https://github.com/ConvexBurrito5/TF2SentryCAD) for the physical CAD/STL files
+- [Maiikiru's CV Repo](https://github.com/Maiikiru/TF2SentrySource) for the brain and the logic (PRIVATE for now)
+- [Bradon's CAD Repo](https://github.com/ConvexBurrito5/TF2SentryCAD) for the physical CAD/STL files (PRIVATE for now)
 - [Current Repo](https://github.com/ConvexBurrito5/TF2SentryEE) for circuitry and build instructions.
 
 This repo is my work (Steven Naliwajka/ConvexBurrito5), [GitHub](https://github.com/ConvexBurrito5), [LinkedIn](https://www.linkedin.com/in/steven-naliwajka-69564929a/).
