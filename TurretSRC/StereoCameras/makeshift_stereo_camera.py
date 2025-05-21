@@ -25,9 +25,9 @@ class MakeshiftStereoCamera(StereoCamera):
     def __init__(self,
                  left_camera: Camera,
                  right_camera: Camera,
-                 baseline_length_mm: Optional[float],
-                 focal_length_px: Optional[np.ndarray],
-                 stereo_matcher: StereoMatcher
+                 stereo_matcher: StereoMatcher,
+                 baseline_length_mm: Optional[float] = None,
+                 focal_length_px: Optional[np.ndarray] = None,
                  ) -> None:
         """
         left_camera: Camera a reference to the left camera
