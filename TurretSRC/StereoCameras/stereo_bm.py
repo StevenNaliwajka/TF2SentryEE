@@ -20,7 +20,11 @@ class StereoBM(OpenCVStereoMatcher):
         "speckle_range", "speckle_window_size", "disp12_max_diff", "min_disparity"
     )
 
-    def __init__(self, left_stereo_map_path: Path, right_stereo_map_path: Path, preexisting_params_path: Path):
+    def __init__(self,
+                 left_stereo_map_path: Path = Path(__file__).parent / "StereoCalibration/saved_results/camera_calib/left_stereo_map.npz",
+                 right_stereo_map_path: Path = Path(__file__).parent / "StereoCalibration/saved_results/camera_calib/right_stereo_map.npz",
+                 preexisting_params_path: Path = BM_PARAMS_JSON
+                 ) -> None:
         super().__init__(left_stereo_map_path, right_stereo_map_path)
 
         left_stereo_map, right_stereo_map = self._check_left_and_right_maps(left_stereo_map_path, right_stereo_map_path)
@@ -35,10 +39,8 @@ class StereoBM(OpenCVStereoMatcher):
         else:
             self.stereo_algo: cv2.StereoBM = cv2.StereoBM.create()
 
-        if preexisting_params_path is None:
-            self.initialize_hyperparams_from_json(self.BM_PARAMS_JSON)
-        else:
-            self.initialize_hyperparams_from_json(preexisting_params_path)
+
+        self.initialize_hyperparams_from_json(preexisting_params_path)
 
     def initialize_hyperparams_from_json(self, json_path: Path) -> None:
         """

@@ -22,7 +22,10 @@ class OpenCVStereoMatcher(StereoMatcher):
 
     """
 
-    def __init__(self, left_stereo_map_path: Path, right_stereo_map_path: Path):
+    def __init__(self, 
+                 left_stereo_map_path: Path = Path(__file__).parent / "StereoCalibration/saved_results/camera_calib/left_stereo_map.npz",
+                 right_stereo_map_path: Path = Path(__file__).parent / "StereoCalibration/saved_results/camera_calib/right_stereo_map.npz"
+                 ) -> None:
         super().__init__()
         left_stereo_map, right_stereo_map = self._check_left_and_right_maps(left_stereo_map_path, right_stereo_map_path)
 
