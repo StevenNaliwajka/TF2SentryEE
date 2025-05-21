@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 import cv2
 
 import numpy as np
@@ -7,10 +7,9 @@ import numpy as np
 if TYPE_CHECKING:
     from IOImplementations.TurretSRC.StereoCameras.stereo_matcher import StereoMatcher
     from IO.stereo_camera import StereoCamera
-    from IO.camera import Camera
 from concurrent.futures import ThreadPoolExecutor, Future
 
-
+from IO.camera import Camera
 
 
 class MakeshiftStereoCamera(StereoCamera):
@@ -26,8 +25,8 @@ class MakeshiftStereoCamera(StereoCamera):
     def __init__(self,
                  left_camera: Camera,
                  right_camera: Camera,
-                 baseline_length_mm: float,
-                 focal_length_px: np.ndarray,
+                 baseline_length_mm: Optional[float],
+                 focal_length_px: Optional[np.ndarray],
                  stereo_matcher: StereoMatcher
                  ) -> None:
         """
@@ -84,6 +83,14 @@ class MakeshiftStereoCamera(StereoCamera):
             This function returns a 4 channel matrix (H,W,4) where the first 3 channels are the RGB and the 4th channel
             is the depth in mm.
         """
+        if self.baseline_mm is None:
+            raise ValueError("Your baseline is None! I cannot compute depth without the baseline \n"
+                             "If you left the baseline unfilled in the constructor, did you make sure to call the function"
+                             "`set_baseline_and_focal_length_px` later??")
+        if not self.focal_length_px:
+            raise ValueError("Your focal length is None/Empty! I cannot compute depth without the x focal length in pixels \n"
+                             "If you left the focal length unfilled in the constructor, did you make sure to call the function"
+                             "`set_baseline_and_focal_length_px` later??")
         left_image, right_image = self.get_images()
 
         depth_map: np.ndarray = self._stereo_matcher.get_depth_map(
@@ -93,3 +100,18 @@ class MakeshiftStereoCamera(StereoCamera):
             self.baseline_mm
         )
         return np.dstack((left_image, depth_map))
+    
+    def set_baseline_and_focal_length_px(self,baseline_mm: float, focal_length_px: np.ndarray) -> None:
+        """
+        This function allows for delayed initialization of the baseline and focal length.
+        The reason that this is useful is because we may use the computed values for the baseline and
+        focal length instead of theoretical values.
+        """
+        self.baseline_mm = baseline_mm
+        self.focal_length_px = focal_length_px
+    
+    def get_baseline(self) -> float:
+        return self.baseline_mm
+    
+    def get_focal_length_px(self) -> np.ndarray:
+        return self.focal_length_px
