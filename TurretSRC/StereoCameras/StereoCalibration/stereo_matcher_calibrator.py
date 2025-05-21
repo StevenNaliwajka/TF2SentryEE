@@ -10,8 +10,10 @@ if TYPE_CHECKING:
 
 
 class StereoMatcherCalibrator(ABC):
-    def __init__(self, left_image_path: Path, right_image_path: Path, left_stereo_map_path: Path | str,
-                 right_stereo_map_path: Path | str) -> None:
+    def __init__(self, left_image_path: Path, right_image_path: Path,
+                 left_stereo_map_path: Path | str = Path(__file__).parent / "saved_results/camera_calib/left_stereo_map.npz",
+                 right_stereo_map_path: Path | str = Path(__file__).parent / "saved_results/camera_calib/right_stereo_map.npz"
+                 ) -> None:
         """
         You should never create this class as it's an abstract class.
         You WILL need to set self.stereo_algo in your child class.
@@ -30,6 +32,25 @@ class StereoMatcherCalibrator(ABC):
         self.load_new_img_pair(left_image_path, right_image_path)
 
         self.stereo_matcher = OpenCVStereoMatcher(left_stereo_map_path, right_stereo_map_path)
+    
+    @abstractmethod
+    def _save_params(self) -> None:
+        """
+        Protected method.
+        This function should somehow save the hyperparameters that you have chosen.
+        For GUI based calibration, this will probably be a callback.
+        For a CLI based calibration, you can just use a normal function.
+        You don't have to strictly follow the above rules, but you should make sure that the params are saved
+        somehow with this function.
+        """
+        pass
+
+    @abstractmethod
+    def tune_disparity_params(self):
+        """
+        This function should be the driver for tuning the hyperparameters of whatever stereo matcher you have chosen.
+        """
+        pass
 
     def load_new_img_pair(self, left_image_path: Path, right_image_path: Path) -> None:
         """
@@ -49,22 +70,7 @@ class StereoMatcherCalibrator(ABC):
             cv2.imread(str(left_image_path), cv2.IMREAD_GRAYSCALE),
             cv2.imread(str(right_image_path), cv2.IMREAD_GRAYSCALE)
         )
+    
 
-    @abstractmethod
-    def _save_params(self) -> None:
-        """
-        Protected method.
-        This function should somehow save the hyperparameters that you have chosen.
-        For GUI based calibration, this will probably be a callback.
-        For a CLI based calibration, you can just use a normal function.
-        You don't have to strictly follow the above rules, but you should make sure that the params are saved
-        somehow with this function.
-        """
-        pass
 
-    @abstractmethod
-    def tune_disparity_params(self):
-        """
-        This function should be the driver for tuning the hyperparameters of whatever stereo matcher you have chosen.
-        """
-        pass
+    

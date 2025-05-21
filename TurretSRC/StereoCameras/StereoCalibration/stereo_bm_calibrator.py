@@ -17,8 +17,8 @@ class StereoBMCalibrator(StereoMatcherCalibrator):
     def __init__(self,
                  left_image_path: Path,
                  right_image_path: Path,
-                 left_stereo_map_path: Path | str,
-                 right_stereo_map_path: Path | str,
+                 left_stereo_map_path: Path | str = Path(__file__).parent / "saved_results/camera_calib/left_stereo_map.npz",
+                 right_stereo_map_path: Path | str = Path(__file__).parent / "saved_results/camera_calib/right_stereo_map.npz",
                  new_save_path: Path = Path(__file__).parent / "saved_results/hyperparams/stereo_bm_params.json",
                  preexisting_params_path: Path | None = None
                  ) -> None:
