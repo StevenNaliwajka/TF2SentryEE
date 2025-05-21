@@ -25,13 +25,19 @@ class MakeshiftStereoCamera(StereoCamera):
     def __init__(self,
                  left_camera: Camera,
                  right_camera: Camera,
-                 stereo_matcher: StereoMatcher,
+                 stereo_matcher: Optional[StereoMatcher] = None,
                  baseline_length_mm: Optional[float] = None,
                  focal_length_px: Optional[np.ndarray] = None,
                  ) -> None:
         """
         left_camera: Camera a reference to the left camera
         right_camera: Camera a reference to the right camera
+
+        We allow lazy initilzation for the next 3 parameters.
+        This is because they require a stereo camera to calibrate and realize their values.
+        If you for some reason already know the values, you may just pass it straight up in the constructor,
+        else you better call the 
+
         matcher_choice: A value to which enum the user wishes to use.
         These 2 cameras should be parallel (or have very small angle between them) and should be the same camera.
         !!
@@ -86,11 +92,15 @@ class MakeshiftStereoCamera(StereoCamera):
         if self.baseline_mm is None:
             raise ValueError("Your baseline is None! I cannot compute depth without the baseline \n"
                              "If you left the baseline unfilled in the constructor, did you make sure to call the function"
-                             "`set_baseline_and_focal_length_px` later??")
+                             "`initialize_lazy_values` later??")
         if not self.focal_length_px:
             raise ValueError("Your focal length is None/Empty! I cannot compute depth without the x focal length in pixels \n"
                              "If you left the focal length unfilled in the constructor, did you make sure to call the function"
-                             "`set_baseline_and_focal_length_px` later??")
+                             "`initialize_lazy_values` later??")
+        if self._stereo_matcher is None:
+            raise ValueError("Your stereo matcher is None/Empty! \n"
+                             "If you left the stereo_matcher unfilled in the constructor, did you make sure to call the function"
+                             "`initialize_lazy_values` later??")
         left_image, right_image = self.get_images()
 
         depth_map: np.ndarray = self._stereo_matcher.get_depth_map(
@@ -101,12 +111,15 @@ class MakeshiftStereoCamera(StereoCamera):
         )
         return np.dstack((left_image, depth_map))
     
-    def set_baseline_and_focal_length_px(self,baseline_mm: float, focal_length_px: np.ndarray) -> None:
+    def initialize_lazy_values(self,matcher: cv2.StereoMatcher, baseline_mm: float, focal_length_px: np.ndarray) -> None:
         """
-        This function allows for delayed initialization of the baseline and focal length.
+        This function allows for delayed initialization of the baseline, focal length, and stereo matcher.
         The reason that this is useful is because we may use the computed values for the baseline and
         focal length instead of theoretical values.
+        Furthermore, the matcher is dependent on stereo camera calibration and without a stereo camera you cannot
+        create a stereo matcher.
         """
+        self._stereo_matcher = matcher
         self.baseline_mm = baseline_mm
         self.focal_length_px = focal_length_px
     
