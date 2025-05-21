@@ -14,14 +14,14 @@ Arducam Resolutions
 320/240 	4:3     (30 fps)
 '''
 class Arducam(Camera):
-    def __init__(self, resolution=(640,480), cap_fps=30) -> None:
+    def __init__(self,camera_num:int, resolution=(640,480), cap_fps=30) -> None:
         super().__init__(resolution, cap_fps)
 
-        self.cap = cv2.VideoCapture(0,cv2.CAP_V4L2)
+        self.cap = cv2.VideoCapture(camera_num,cv2.CAP_V4L2)
         self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.RESOLUTION[0])
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.RESOLUTION[1])
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.RESOLUTION[1])
+        self.cap.set(cv2.CAP_PROP_FPS, self.cap_fps)
 
         self.print_info()
     
@@ -41,3 +41,4 @@ class Arducam(Camera):
         returns img:MatLike row,col,BGR24 (8 bits per color)
         """
         return self.cap.retrieve()
+    
