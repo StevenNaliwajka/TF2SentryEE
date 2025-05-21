@@ -4,17 +4,16 @@ import cv2
 
 import numpy as np
 
-import StereoCalibration.stereo_calibrate as stereo_calibrator
-
 if TYPE_CHECKING:
     from IOImplementations.TurretSRC.StereoCameras.stereo_matcher import StereoMatcher
+    from IO.stereo_camera import StereoCamera
+    from IO.camera import Camera
 from concurrent.futures import ThreadPoolExecutor, Future
-from IO.depthvision import DepthVision
-
-from IO.camera import Camera
 
 
-class MakeshiftStereoCamera(DepthVision):
+
+
+class MakeshiftStereoCamera(StereoCamera):
     LEFT_STEREO_DIRECTORY: str = "stereo_l"
     RIGHT_STEREO_DIRECTORY: str = "stereo_r"
 
