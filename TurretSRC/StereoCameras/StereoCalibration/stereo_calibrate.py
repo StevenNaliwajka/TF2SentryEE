@@ -9,9 +9,8 @@ import shutil
 import re
 from tqdm import tqdm
 from dataclasses import dataclass
-
 if TYPE_CHECKING:
-    from ..makeshift_stereo_camera import MakeshiftStereoCamera
+    from IO.stereo_camera import StereoCamera
 
 """
 These helper functions will help calibrate and set up the stereo camera pair.
@@ -91,7 +90,7 @@ class StereoCalibrationResults:
 
 
 def take_photos(
-        stereo_camera: MakeshiftStereoCamera,
+        stereo_camera: StereoCamera,
         left_stereo_path: Path = Path(__file__).parent / "stereo_images/calibration_images/stereo_l/",
         right_stereo_path: Path = Path(__file__).parent / "stereo_images/calibration_images/stereo_r/",
         photos_to_take: int = 30,
