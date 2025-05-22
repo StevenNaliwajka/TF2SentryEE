@@ -246,57 +246,6 @@ def check_images(left_stereo_path: Path = Path(__file__).parent / "stereo_images
     cv2.destroyWindow(WINDOW_NAME)
 
 
-def load_calibration_info(left_stereo_path: Path = Path(__file__) / ("saved_results/camera_calib"
-                                                                     "/left_cam_calib_results.npz"),
-                          right_stereo_path: Path = Path(__file__) / "saved_results/camera_calib"
-                                                                     "/right_cam_calib_results.npz",
-                          obj_pts_path: Path = Path(__file__) / "saved_results/camera_calib/obj_pts.npz"
-                          ) -> tuple[list, CameraCalibrationResults, CameraCalibrationResults]:
-    """
-    This function attempts to load the camera calibration information that you have already saved.
-    Ideally, this means that you called calibrate_both_cameras() and saved the parameters, or that you
-    know your camera calibration information because you computed it on a different computer and are just
-    transferring the files.
-
-    This function throws a FileNotFoundError if it was not able to find the files.
-
-    params:
-        left_stereo_path: The path of the left stereo calibration parameters. This should be a npz file.
-        right_stereo_path: The path of the right stereo calibration parameters. This should be a npz file.
-        obj_pts_path: The path of the object points that were used to calibrate the parameters.
-    returns:
-        obj_pts: a list of object points in the real world space. We assume that the z axis is fixed (0).
-        left_camera_info: a struct containing information about left camera calibration
-        right_camera_info: a struct containing information about right camera calibration
-    """
-
-    files_to_chk: tuple = (obj_pts_path, left_stereo_path, right_stereo_path)
-
-    if all(os.path.exists(file) for file in files_to_chk):
-        print("Found the camera calibration results already saved!! "
-              "I am going to just load those and not recompute any results. \n"
-              "In other words, I am going to ignore the images you passed as a parameter")
-        print("If you did actually want the images considered, delete the files ", str(files_to_chk))
-        obj_pts: list = list(np.load(obj_pts_path)['obj_pts'])
-        left = np.load(left_stereo_path)
-        right = np.load(right_stereo_path)
-        left_calibration_info: CameraCalibrationResults = \
-            CameraCalibrationResults(image_points=left['img_pts_l'],
-                                     camera_matrix=left['new_mtx_l'],
-                                     distortion_coeffs=left['dist_l'],
-                                     image_size=left['inv_left_shape'],
-                                     rmse=left['rmse_l'])
-        right_calibration_info: CameraCalibrationResults = \
-            CameraCalibrationResults(image_points=right['img_pts_r'],
-                                     camera_matrix=right['new_mtx_r'],
-                                     distortion_coeffs=right['dist_r'],
-                                     image_size=right['inv_right_shape'],
-                                     rmse=right['rmse_r'])
-        return obj_pts, left_calibration_info, right_calibration_info
-    else:
-        raise FileNotFoundError("Could not find the calibration results.")
-
-
 def calibrate_both_cameras(
         chessboard_inner_pt_dim: tuple[int, int],
         square_size_mm: float,
@@ -592,6 +541,57 @@ def save_all_results(
                         map2=right_stereo_map[1]
                         )
     print("Right stereo map path has been successfully saved to ", str(right_stereo_map_path))
+
+
+def load_calibration_info(left_stereo_path: Path = Path(__file__) / ("saved_results/camera_calib"
+                                                                     "/left_cam_calib_results.npz"),
+                          right_stereo_path: Path = Path(__file__) / "saved_results/camera_calib"
+                                                                     "/right_cam_calib_results.npz",
+                          obj_pts_path: Path = Path(__file__) / "saved_results/camera_calib/obj_pts.npz"
+                          ) -> tuple[list, CameraCalibrationResults, CameraCalibrationResults]:
+    """
+    This function attempts to load the camera calibration information that you have already saved.
+    Ideally, this means that you called calibrate_both_cameras() and saved the parameters, or that you
+    know your camera calibration information because you computed it on a different computer and are just
+    transferring the files.
+
+    This function throws a FileNotFoundError if it was not able to find the files.
+
+    params:
+        left_stereo_path: The path of the left stereo calibration parameters. This should be a npz file.
+        right_stereo_path: The path of the right stereo calibration parameters. This should be a npz file.
+        obj_pts_path: The path of the object points that were used to calibrate the parameters.
+    returns:
+        obj_pts: a list of object points in the real world space. We assume that the z axis is fixed (0).
+        left_camera_info: a struct containing information about left camera calibration
+        right_camera_info: a struct containing information about right camera calibration
+    """
+
+    files_to_chk: tuple = (obj_pts_path, left_stereo_path, right_stereo_path)
+
+    if all(os.path.exists(file) for file in files_to_chk):
+        print("Found the camera calibration results already saved!! "
+              "I am going to just load those and not recompute any results. \n"
+              "In other words, I am going to ignore the images you passed as a parameter")
+        print("If you did actually want the images considered, delete the files ", str(files_to_chk))
+        obj_pts: list = list(np.load(obj_pts_path)['obj_pts'])
+        left = np.load(left_stereo_path)
+        right = np.load(right_stereo_path)
+        left_calibration_info: CameraCalibrationResults = \
+            CameraCalibrationResults(image_points=left['img_pts_l'],
+                                     camera_matrix=left['new_mtx_l'],
+                                     distortion_coeffs=left['dist_l'],
+                                     image_size=left['inv_left_shape'],
+                                     rmse=left['rmse_l'])
+        right_calibration_info: CameraCalibrationResults = \
+            CameraCalibrationResults(image_points=right['img_pts_r'],
+                                     camera_matrix=right['new_mtx_r'],
+                                     distortion_coeffs=right['dist_r'],
+                                     image_size=right['inv_right_shape'],
+                                     rmse=right['rmse_r'])
+        return obj_pts, left_calibration_info, right_calibration_info
+    else:
+        raise FileNotFoundError("Could not find the calibration results.")
 
 
 def load_all_results(

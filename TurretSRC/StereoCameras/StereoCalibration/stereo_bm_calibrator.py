@@ -43,11 +43,11 @@ class StereoBMCalibrator(StereoMatcherCalibrator):
         self.height: int = -1
         self.width: int = -1
 
-        disparity, self.height, self.width = self.compute_disparity()
+        disparity, self.height, self.width = self._compute_disparity()
 
-        self.curr_dpg_image: np.ndarray = self.convert_to_dpg_texture(disparity)
+        self.curr_dpg_image: np.ndarray = self._convert_to_dpg_texture(disparity)
 
-        self.dpg_gui: DPGGUI = DPGGUI(self._create_slider_dict(), self._save_params, self.on_slider_update)
+        self.dpg_gui: DPGGUI = DPGGUI(self._create_slider_dict(), self._save_params, self._on_slider_update)
 
     def _create_slider_dict(self) -> list[dict]:
         """
@@ -90,7 +90,7 @@ class StereoBMCalibrator(StereoMatcherCalibrator):
         with open(self._save_path, "w") as file:
             json.dump(saved_param_list, file)
 
-    def convert_to_dpg_texture(self, image: np.ndarray) -> np.ndarray:
+    def _convert_to_dpg_texture(self, image: np.ndarray) -> np.ndarray:
         """
         This function will convert the image to DPG format to be used as a raw texture.
         You need to be very careful here in this function as DPG does not apply checks for raw textures,
@@ -108,7 +108,7 @@ class StereoBMCalibrator(StereoMatcherCalibrator):
 
         return image.flatten()
 
-    def compute_disparity(self) -> tuple[np.ndarray, int, int]:
+    def _compute_disparity(self) -> tuple[np.ndarray, int, int]:
         """
         This function will compute disparity (with some extra checks because performance is not critical yet).
         It will return the disparity map after color is applied to it.
@@ -132,7 +132,7 @@ class StereoBMCalibrator(StereoMatcherCalibrator):
         height, width = disparity.shape[0], disparity.shape[1]
         return cv2.applyColorMap(disparity, cv2.COLORMAP_JET), height, width
 
-    def on_slider_update(self, sender_tag: str, new_value: int) -> None:
+    def _on_slider_update(self, sender_tag: str, new_value: int) -> None:
         """
         This callback function should be bound to when a slider updates on DPG.
         It will pass in information about which slider changed and update the stereo block matcher accordingly.
@@ -142,9 +142,9 @@ class StereoBMCalibrator(StereoMatcherCalibrator):
             new_value: The new value that the slider is taking on.
         """
         self.stereo_matcher.call_setter_by_snk_case(sender_tag, new_value)
-        disparity, height, width = self.compute_disparity()
+        disparity, height, width = self._compute_disparity()
         self.height = height
         self.width = width
         # Note here that we never overwrite the memory address of the image.
         # This is because DPG requires us to just change the texture and not point to a new place.
-        self.curr_dpg_image[:] = self.convert_to_dpg_texture(disparity)
+        self.curr_dpg_image[:] = self._convert_to_dpg_texture(disparity)
