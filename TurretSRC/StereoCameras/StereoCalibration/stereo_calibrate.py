@@ -9,6 +9,7 @@ import shutil
 import re
 from tqdm import tqdm
 from dataclasses import dataclass
+
 if TYPE_CHECKING:
     from IO.stereo_camera import StereoCamera
 
@@ -543,70 +544,29 @@ def save_all_results(
     print("Right stereo map path has been successfully saved to ", str(right_stereo_map_path))
 
 
-def load_calibration_info(left_stereo_path: Path = Path(__file__) / ("saved_results/camera_calib"
-                                                                     "/left_cam_calib_results.npz"),
-                          right_stereo_path: Path = Path(__file__) / "saved_results/camera_calib"
-                                                                     "/right_cam_calib_results.npz",
-                          obj_pts_path: Path = Path(__file__) / "saved_results/camera_calib/obj_pts.npz"
-                          ) -> tuple[list, CameraCalibrationResults, CameraCalibrationResults]:
-    """
-    This function attempts to load the camera calibration information that you have already saved.
-    Ideally, this means that you called calibrate_both_cameras() and saved the parameters, or that you
-    know your camera calibration information because you computed it on a different computer and are just
-    transferring the files.
-
-    This function throws a FileNotFoundError if it was not able to find the files.
-
-    params:
-        left_stereo_path: The path of the left stereo calibration parameters. This should be a npz file.
-        right_stereo_path: The path of the right stereo calibration parameters. This should be a npz file.
-        obj_pts_path: The path of the object points that were used to calibrate the parameters.
-    returns:
-        obj_pts: a list of object points in the real world space. We assume that the z axis is fixed (0).
-        left_camera_info: a struct containing information about left camera calibration
-        right_camera_info: a struct containing information about right camera calibration
-    """
-
-    files_to_chk: tuple = (obj_pts_path, left_stereo_path, right_stereo_path)
-
-    if all(os.path.exists(file) for file in files_to_chk):
-        print("Found the camera calibration results already saved!! "
-              "I am going to just load those and not recompute any results. \n"
-              "In other words, I am going to ignore the images you passed as a parameter")
-        print("If you did actually want the images considered, delete the files ", str(files_to_chk))
-        obj_pts: list = list(np.load(obj_pts_path)['obj_pts'])
-        left = np.load(left_stereo_path)
-        right = np.load(right_stereo_path)
-        left_calibration_info: CameraCalibrationResults = \
-            CameraCalibrationResults(image_points=left['img_pts_l'],
-                                     camera_matrix=left['new_mtx_l'],
-                                     distortion_coeffs=left['dist_l'],
-                                     image_size=left['inv_left_shape'],
-                                     rmse=left['rmse_l'])
-        right_calibration_info: CameraCalibrationResults = \
-            CameraCalibrationResults(image_points=right['img_pts_r'],
-                                     camera_matrix=right['new_mtx_r'],
-                                     distortion_coeffs=right['dist_r'],
-                                     image_size=right['inv_right_shape'],
-                                     rmse=right['rmse_r'])
-        return obj_pts, left_calibration_info, right_calibration_info
-    else:
-        raise FileNotFoundError("Could not find the calibration results.")
-
-
-def load_all_results(
+def load_requested_results(
+        requested_results: set[str] = None,
         obj_pts_path: Path = Path(__file__).parent / "saved_results/camera_calib/obj_pts.npz",
         left_res_path: Path = Path(__file__).parent / "saved_results/camera_calib/left_cam_calib_results.npz",
         right_res_path: Path = Path(__file__).parent / "saved_results/camera_calib/right_cam_calib_results.npz",
         general_stereo_info_path: Path = Path(__file__).parent / "saved_results/camera_calib/general_stereo_info.npz",
         left_stereo_map_path: Path = Path(__file__).parent / "saved_results/camera_calib/left_stereo_map.npz",
         right_stereo_map_path: Path = Path(__file__).parent / "saved_results/camera_calib/right_stereo_map.npz"
-) -> tuple[
-        list, CameraCalibrationResults, CameraCalibrationResults, StereoCalibrationResults,
-        tuple[np.ndarray, np.ndarray], tuple[np.ndarray, np.ndarray]]:
+) -> dict:
     """
-    Load calibration results from disk that were saved using `save_all_results`.
+    This function will load all requested results specified or all of them if not specified.
+    You better make sure that you have a path defined for the results you request, otherwise the default
+    will be used.
+    params:
+        requested_results: The results you want to request. This should be a set that contain strings from the 
+            following: "obj_pts", "left_camera_info", "right_camera_info", "general_stereo_info_path",
+            "left_stereo_map_path","right_stereo_map_path".
+            If you include the string inside the set, you must also specify the respective path, or you will be given
+            the default path.
+            You may also choose to omit any strings you don't need results for.
     Returns:
+        a dictionary of the requested items from requested_results or all if not specified.
+        The keys will be the exact same as the strings used for requested_results.
         obj_pts: the list of object points
         left_camera_info: the left camera info defined in the struct `CameraCalibrationResults`
         right_camera_info: the right camera info defined in the struct `CameraCalibrationResults`
@@ -615,60 +575,57 @@ def load_all_results(
         right_stereo_map: a double containing the map to rectify the right stereo map. Of the form (map1,map2)
     """
 
-    with np.load(obj_pts_path) as data:
-        obj_pts_mtx = data["obj_pts"]
-    obj_pts: list = list(obj_pts_mtx)
+    if requested_results is None:
+        requested_results = {
+            "obj_pts",
+            "left_camera_info",
+            "right_camera_info",
+            "general_stereo_info_path",
+            "left_stereo_map_path",
+            "right_stereo_map_path"
+        }
 
-    with np.load(left_res_path) as data:
-        img_pts_l = data["img_pts_l"]
-        intrinsic_matrix_l = data["intrinsic_matrix_l"]
-        dist_l = data["dist_l"]
-        inv_left_shape = data["inv_left_shape"]
-        rmse_l = data["rmse_l"]
+    results: dict = {}
 
-    with np.load(right_res_path) as data:
-        img_pts_r = data["img_pts_r"]
-        instrinsic_matrix_r = data["instrinsic_matrix_r"]
-        dist_r = data["dist_r"]
-        inv_right_shape = data["inv_right_shape"]
-        rmse_r = data["rmse_r"]
+    if "obj_pts" in requested_results:
+        with np.load(obj_pts_path) as data:
+            results["obj_pts"] = list(data["obj_pts"])
 
-    left_camera_info = CameraCalibrationResults(img_pts_l, intrinsic_matrix_l, dist_l, inv_left_shape, rmse_l)
-    right_camera_info = CameraCalibrationResults(img_pts_r, instrinsic_matrix_r, dist_r, inv_right_shape, rmse_r)
+    if "left_camera_info" in requested_results:
+        with np.load(left_res_path) as data:
+            results["left_camera_info"] = CameraCalibrationResults(
+                data["img_pts_l"], data["intrinsic_matrix_l"],
+                data["dist_l"], data["inv_left_shape"], data["rmse_l"]
+            )
 
-    with np.load(general_stereo_info_path) as data:
-        ess_mat = data["ess_mat"]
-        fund_mat = data["fund_mat"]
-        rot_mat = data["rot_mat"]
-        trans_vect = data["trans_vect"]
-        reproj_error = data["reproj_error"]
+    if "right_camera_info" in requested_results:
+        with np.load(right_res_path) as data:
+            results["right_camera_info"] = CameraCalibrationResults(
+                data["img_pts_r"], data["instrinsic_matrix_r"],
+                data["dist_r"], data["inv_right_shape"], data["rmse_r"]
+            )
 
-    general_stereo_info = StereoCalibrationResults(
-        essential_matrix=ess_mat,
-        fund_mat=fund_mat,
-        rotation_matrix=rot_mat,
-        translation_vector=trans_vect,
-        reproj_error=reproj_error
-    )
+    if "general_stereo_info" in requested_results:
+        with np.load(general_stereo_info_path) as data:
+            results["general_stereo_info"] = StereoCalibrationResults(
+                essential_matrix=data["ess_mat"],
+                fund_mat=data["fund_mat"],
+                rotation_matrix=data["rot_mat"],
+                translation_vector=data["trans_vect"],
+                reproj_error=data["reproj_error"]
+            )
 
-    with np.load(left_stereo_map_path) as data:
-        left_stereo_map: tuple[np.ndarray, np.ndarray] = (data["map1"], data["map2"])
+    if "left_stereo_map_path" in requested_results:
+        with np.load(left_stereo_map_path) as data:
+            results["left_stereo_map"] = (data["map1"], data["map2"])
 
-    with np.load(right_stereo_map_path) as data:
-        right_stereo_map: tuple[np.ndarray, np.ndarray] = (data["map1"], data["map2"])
-
-    return (
-        obj_pts,
-        left_camera_info,
-        right_camera_info,
-        general_stereo_info,
-        left_stereo_map,
-        right_stereo_map
-    )
+    if "right_stereo_map_path" in requested_results:
+        with np.load(right_stereo_map_path) as data:
+            results["right_stereo_map"] = (data["map1"], data["map2"])
+    return results 
 
 
 def get_focal_lengths_px(
-        obj_pts_path: Path = Path(__file__).parent / "saved_results/camera_calib/obj_pts.npz",
         left_res_path: Path = Path(__file__).parent / "saved_results/camera_calib/left_cam_calib_results.npz",
         right_res_path: Path = Path(__file__).parent / "saved_results/camera_calib/right_cam_calib_results.npz",
 ) -> tuple:
@@ -683,7 +640,12 @@ def get_focal_lengths_px(
         This function will return a double of the focal lengths (fx,fy) for left camera and right camera.
         the format will be ((left_fx,left_fy),(right_fx,right_fy))
     """
-    _, left_cam_info, right_cam_info = load_calibration_info(left_res_path, right_res_path, obj_pts_path)
+    results: dict = load_requested_results({"left_camera_info", "right_camera_info"},
+                                           left_res_path=left_res_path,
+                                           right_res_path=right_res_path)
+    
+    left_cam_info: CameraCalibrationResults = results["left_camera_info"]
+    right_cam_info: CameraCalibrationResults = results["right_camera_info"]
 
     return (
         (left_cam_info.camera_matrix[0][0], left_cam_info.camera_matrix[1][1]),
