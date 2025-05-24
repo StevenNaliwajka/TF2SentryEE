@@ -25,9 +25,10 @@ class StereoMatcherCalibrator(ABC):
         self.rectified_left: cv2.typing.MatLike = None
         self.rectified_right: cv2.typing.MatLike = None
 
-        self.load_new_img_pair(left_image_path, right_image_path)
-
         self.stereo_matcher = OpenCVStereoMatcher(left_stereo_map_path, right_stereo_map_path)
+
+        self.load_new_img_pair(left_image_path, right_image_path)
+        
     
     @abstractmethod
     def _save_params(self) -> None:
