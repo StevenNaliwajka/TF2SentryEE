@@ -37,7 +37,7 @@ class StereoBMCalibrator(StereoMatcherCalibrator):
                 that you already have.
         """
         super().__init__(left_image_path, right_image_path,
-                         StereoBM(left_stereo_map_path, right_stereo_map_path, preexisting_params_path),
+                         StereoBM(left_stereo_map_path, right_stereo_map_path, preexisting_params_path)
                          )
         
         # I will cast the stereo matcher to stereoBM since I am defining it above.
@@ -153,4 +153,3 @@ class StereoBMCalibrator(StereoMatcherCalibrator):
         # Note here that we never overwrite the memory address of the image.
         # This is because DPG requires us to just change the texture and not point to a new place.
         self.curr_dpg_image[:] = self._convert_to_dpg_texture(disparity)
-        

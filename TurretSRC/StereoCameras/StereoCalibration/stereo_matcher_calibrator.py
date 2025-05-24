@@ -5,13 +5,13 @@ from abc import abstractmethod, ABC
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..opencv_stereo_matcher import OpenCVStereoMatcher
+    from ..stereo_matcher import StereoMatcher
 
 
 
 class StereoMatcherCalibrator(ABC):
     def __init__(self, left_image_path: Path, right_image_path: Path,
-                 stereo_matcher: OpenCVStereoMatcher,
+                 stereo_matcher: StereoMatcher,
                  ) -> None:
         """
         You should never create this class as it's an abstract class.
@@ -25,7 +25,7 @@ class StereoMatcherCalibrator(ABC):
         self.rectified_left: cv2.typing.MatLike = None
         self.rectified_right: cv2.typing.MatLike = None
 
-        self.stereo_matcher: OpenCVStereoMatcher = stereo_matcher
+        self.stereo_matcher: StereoMatcher = stereo_matcher
 
         self.load_new_img_pair(left_image_path, right_image_path)
         
