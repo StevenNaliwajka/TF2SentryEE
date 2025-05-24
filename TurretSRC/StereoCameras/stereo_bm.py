@@ -4,12 +4,9 @@ import json
 
 from pathlib import Path
 from helper_functions import has_compiled_with_cuda
-from typing import TYPE_CHECKING
 
 import numpy as np
-
-if TYPE_CHECKING:
-    from .opencv_stereo_matcher import OpenCVStereoMatcher
+from .opencv_stereo_matcher import OpenCVStereoMatcher
 
 
 class StereoBM(OpenCVStereoMatcher):

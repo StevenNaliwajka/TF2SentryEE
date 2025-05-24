@@ -7,8 +7,7 @@ import cv2
 import numpy as np
 from abc import abstractmethod
 
-if TYPE_CHECKING:
-    from .stereo_matcher import StereoMatcher
+from .stereo_matcher import StereoMatcher
 
 
 class OpenCVStereoMatcher(StereoMatcher):

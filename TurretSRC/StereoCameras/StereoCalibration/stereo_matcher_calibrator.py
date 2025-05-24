@@ -3,10 +3,7 @@ import cv2
 from pathlib import Path
 from abc import abstractmethod, ABC
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ..opencv_stereo_matcher import OpenCVStereoMatcher
+from ..opencv_stereo_matcher import OpenCVStereoMatcher
 
 
 class StereoMatcherCalibrator(ABC):

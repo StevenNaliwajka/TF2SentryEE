@@ -6,7 +6,8 @@ import numpy as np
 
 if TYPE_CHECKING:
     from IOImplementations.TurretSRC.StereoCameras.stereo_matcher import StereoMatcher
-    from IO.stereo_camera import StereoCamera
+
+from IO.stereo_camera import StereoCamera
 from concurrent.futures import ThreadPoolExecutor, Future
 
 from IO.camera import Camera
