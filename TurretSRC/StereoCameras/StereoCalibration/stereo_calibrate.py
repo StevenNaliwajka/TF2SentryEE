@@ -25,7 +25,7 @@ Big thank you to the following resources for helping write some of these functio
 """
 
 
-def _assert_directories_same(left_stereo_path: Path, right_stereo_path: Path) -> list[str]:
+def _assert_directories_same(left_stereo_path: Path, right_stereo_path: Path, ignore_dotted_files:bool=False) -> list[str]:
     """
     This function will assert that the image names across two directories (the left and right stereo images)
     are the same and that there is no missing images.
@@ -33,11 +33,18 @@ def _assert_directories_same(left_stereo_path: Path, right_stereo_path: Path) ->
     params:
         left_stereo_path: Path the left stereo image directory
         right_stereo_path: Path the right stereo image directory
+        ignore_dotted_files Whether or not to ignore files that begin with a .
+            This is useful for not pulling in .gitignores or .venvs or whatever dotted files you may have.
     returns:
         the list of image names shared across the two directories
     """
     left_files: list[str] = [file.name for file in left_stereo_path.iterdir()]
     right_files: list[str] = [file.name for file in right_stereo_path.iterdir()]
+
+    if ignore_dotted_files:
+        left_files = list(filter(lambda filename: not filename.startswith('.'), left_files))
+        right_files = list(filter(lambda filename: not filename.startswith('.'), right_files))
+
     left_files.sort()
     right_files.sort()
     if not left_files == right_files:
@@ -135,7 +142,7 @@ def take_photos(
             return
     else:
 
-        file_names: list[str] = _assert_directories_same(left_stereo_path, right_stereo_path)
+        file_names: list[str] = _assert_directories_same(left_stereo_path, right_stereo_path, True)
         if len(file_names) == 0:
             last_number = 0
         else:
@@ -193,7 +200,7 @@ def check_images(left_stereo_path: Path = Path(__file__).parent / "stereo_images
         raise ValueError("Did not find " + str(right_stereo_path) + ". Did you try running take_photos() "
                                                                     "with the right arguments?")
 
-    file_names: list[str] = _assert_directories_same(left_stereo_path, right_stereo_path)
+    file_names: list[str] = _assert_directories_same(left_stereo_path, right_stereo_path, True)
 
     excluded_left: Path = exclusion_dir / "excluded_l"
     excluded_right: Path = exclusion_dir / "excluded_r"
@@ -303,7 +310,7 @@ def calibrate_both_cameras(
     img_pts_r: list = []
     obj_pts: list = []
 
-    dir_names: list[str] = _assert_directories_same(left_stereo_dir, right_stereo_dir)
+    dir_names: list[str] = _assert_directories_same(left_stereo_dir, right_stereo_dir, True)
 
     if len(dir_names) == 0:
         raise ValueError("No Entries inside your stereo directory!")
