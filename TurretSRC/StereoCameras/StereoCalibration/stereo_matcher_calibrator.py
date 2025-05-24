@@ -22,7 +22,6 @@ class StereoMatcherCalibrator(ABC):
             right_stereo_map_path: The right stereo map path
         """
 
-        super().__init__(left_stereo_map_path, right_stereo_map_path)
         self.rectified_left: cv2.typing.MatLike = None
         self.rectified_right: cv2.typing.MatLike = None
 
