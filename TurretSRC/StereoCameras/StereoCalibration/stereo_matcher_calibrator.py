@@ -2,14 +2,16 @@ from __future__ import annotations
 import cv2
 from pathlib import Path
 from abc import abstractmethod, ABC
+from typing import TYPE_CHECKING
 
-from ..opencv_stereo_matcher import OpenCVStereoMatcher
+if TYPE_CHECKING:
+    from ..opencv_stereo_matcher import OpenCVStereoMatcher
+
 
 
 class StereoMatcherCalibrator(ABC):
     def __init__(self, left_image_path: Path, right_image_path: Path,
-                 left_stereo_map_path: Path | str = Path(__file__).parent / "saved_results/camera_calib/left_stereo_map.npz",
-                 right_stereo_map_path: Path | str = Path(__file__).parent / "saved_results/camera_calib/right_stereo_map.npz"
+                 stereo_matcher: OpenCVStereoMatcher,
                  ) -> None:
         """
         You should never create this class as it's an abstract class.
@@ -17,15 +19,13 @@ class StereoMatcherCalibrator(ABC):
         params:
             left_image_path: The left stereo image path
             right_image_path: The right stereo image path
-            left_stereo_map_path: The left stereo map path
-                (this will be used for rectifying (aligning) the left image with the right one)
-            right_stereo_map_path: The right stereo map path
+            stereo_matcher: The stereo algorithm in particular that you will tune.
         """
 
         self.rectified_left: cv2.typing.MatLike = None
         self.rectified_right: cv2.typing.MatLike = None
 
-        self.stereo_matcher = OpenCVStereoMatcher(left_stereo_map_path, right_stereo_map_path)
+        self.stereo_matcher: OpenCVStereoMatcher = stereo_matcher
 
         self.load_new_img_pair(left_image_path, right_image_path)
         

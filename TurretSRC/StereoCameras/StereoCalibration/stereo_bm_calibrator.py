@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from typing import cast
+
 import numpy as np
 from .dpg_gui import DPGGUI
 import cv2
@@ -34,9 +36,12 @@ class StereoBMCalibrator(StereoMatcherCalibrator):
             preexisting_params_path: the path to whatever preexisting params if you want to tweak some params
                 that you already have.
         """
-        super().__init__(left_image_path, right_image_path, left_stereo_map_path, right_stereo_map_path)
-
-        self.stereo_matcher: StereoBM = StereoBM(left_stereo_map_path, right_stereo_map_path, preexisting_params_path)
+        super().__init__(left_image_path, right_image_path,
+                         StereoBM(left_stereo_map_path, right_stereo_map_path, preexisting_params_path),
+                         )
+        
+        # I will cast the stereo matcher to stereoBM since I am defining it above.
+        self.stereo_matcher = cast(StereoBM, self.stereo_matcher)
 
         self._save_path = new_save_path
 
@@ -148,3 +153,4 @@ class StereoBMCalibrator(StereoMatcherCalibrator):
         # Note here that we never overwrite the memory address of the image.
         # This is because DPG requires us to just change the texture and not point to a new place.
         self.curr_dpg_image[:] = self._convert_to_dpg_texture(disparity)
+        
