@@ -33,7 +33,7 @@ class OpenCVStereoMatcher(StereoMatcher):
 
         # These are the parameters that you better set before calling set_stereo_maps.
         # You should probably put these after your init call if you decide to extend this class.
-        self.stereo_algo: cv2.StereoMatcher = None
+        self._stereo_algo: cv2.StereoMatcher = None
 
     @abstractmethod
     def get_all_hyperparams(self) -> dict:
@@ -55,7 +55,14 @@ class OpenCVStereoMatcher(StereoMatcher):
 
     def get_disparity_map(self, left_image: np.ndarray, right_image: np.ndarray) -> np.ndarray:
 
-        return self.stereo_algo.compute(*self.rectify_stereo_pair(left_image, right_image))
+        return self._stereo_algo.compute(*self.rectify_stereo_pair(left_image, right_image))
+
+    def get_disparity_no_rectification(self, left_image: np.ndarray, right_image: np.ndarray) -> np.ndarray:
+        """
+        This extra function was only added to help SLIGHT performance gains in calibration without exposing the private
+        stereo_algo.
+        """
+        return self._stereo_algo.compute(left_image, right_image)
 
     def get_depth_map(self, left_image: np.ndarray, right_image: np.ndarray, focal_length_x_px: float,
                       baseline_mm: float) -> np.ndarray:
@@ -72,12 +79,12 @@ class OpenCVStereoMatcher(StereoMatcher):
             ex: num_disparities -> setNumDisparities
             This then gets called by the stereo matcher.
         """
-        if self.stereo_algo is None:
+        if self._stereo_algo is None:
             raise ValueError("stereo_algo was not set. If you extended the MatcherCalibrator class, you need"
                              " to make sure that you set this value! ")
         method_to_call: str = self._cvt_snk_to_open_cv_method(snake_case_function_to_call)
-        if hasattr(self.stereo_algo, method_to_call):
-            getattr(self.stereo_algo, method_to_call)(value)
+        if hasattr(self._stereo_algo, method_to_call):
+            getattr(self._stereo_algo, method_to_call)(value)
         else:
             raise ValueError("Unknown method " + method_to_call + ". Perhaps your json file is misformatted?")
 
@@ -93,12 +100,12 @@ class OpenCVStereoMatcher(StereoMatcher):
         returns:
             the integer returned back by the getter called.
         """
-        if self.stereo_algo is None:
+        if self._stereo_algo is None:
             raise ValueError("stereo_algo was not set. If you extended the MatcherCalibrator class, you need"
                              " to make sure that you set this value! ")
         method_to_call: str = self._cvt_snk_to_open_cv_method(snake_case_function_to_call, "get")
-        if hasattr(self.stereo_algo, method_to_call):
-            return getattr(self.stereo_algo, method_to_call)()
+        if hasattr(self._stereo_algo, method_to_call):
+            return getattr(self._stereo_algo, method_to_call)()
         else:
             raise ValueError("Unknown method " + method_to_call + ". Perhaps your json file is misformatted?")
 

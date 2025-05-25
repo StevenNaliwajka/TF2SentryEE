@@ -7,7 +7,7 @@ class StereoMatcher(ABC):
     @abstractmethod
     def get_disparity_map(self, left_image: np.ndarray, right_image: np.ndarray) -> np.ndarray:
         """
-        This function computes the depth map in mm.
+        This function computes the disparity map in pixels.
         params:
             left_image: the left stereo image in greyscale.
             right_image: the right stereo image in greyscale.

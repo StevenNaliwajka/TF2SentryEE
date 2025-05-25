@@ -12,15 +12,15 @@ from .opencv_stereo_matcher import OpenCVStereoMatcher
 class StereoBM(OpenCVStereoMatcher):
     BM_PARAMS_JSON: Path = Path(__file__).parent / "StereoCalibration/saved_results/hyperparams/stereo_bm_default_values.json"
 
-    HYPERPARAM_NAMES: tuple = (
+    HYPERPARAM_NAMES: set = {
         "num_disparities", "block_size", "pre_filter_size", "pre_filter_cap", "texture_threshold", "uniqueness_ratio",
         "speckle_range", "speckle_window_size", "disp12_max_diff", "min_disparity"
-    )
+    }
 
     def __init__(self,
                  left_stereo_map_path: Path = Path(__file__).parent / "StereoCalibration/saved_results/camera_calib/left_stereo_map.npz",
                  right_stereo_map_path: Path = Path(__file__).parent / "StereoCalibration/saved_results/camera_calib/right_stereo_map.npz",
-                 preexisting_params_path: Path = BM_PARAMS_JSON
+                 preexisting_params_path: Path | None = BM_PARAMS_JSON
                  ) -> None:
         super().__init__(left_stereo_map_path, right_stereo_map_path)
 
@@ -32,13 +32,15 @@ class StereoBM(OpenCVStereoMatcher):
         if has_compiled_with_cuda() and cv2.cuda.getCudaEnabledDeviceCount() > 0:
             # You will see a linter warning here if you do not have the CUDA compiled version of openCV
             # on your IDE.
-            self.stereo_algo: cv2.cuda.StereoBM = cv2.cuda.createStereoBM()
+            self._stereo_algo: cv2.cuda.StereoBM = cv2.cuda.createStereoBM()
         else:
-            self.stereo_algo: cv2.StereoBM = cv2.StereoBM.create()
+            self._stereo_algo: cv2.StereoBM = cv2.StereoBM.create()
 
-
-        self.initialize_hyperparams_from_json(preexisting_params_path)
-
+        if preexisting_params_path is None:
+            self.initialize_hyperparams_from_json(self.BM_PARAMS_JSON)
+        else:
+            self.initialize_hyperparams_from_json(preexisting_params_path)
+        
     def initialize_hyperparams_from_json(self, json_path: Path) -> None:
         """
         Your JSON file is required to be a list of objects of which have the attributes "name" and "default_val"
@@ -53,7 +55,7 @@ class StereoBM(OpenCVStereoMatcher):
 
         with open(json_path) as file:
             param_list: list = json.load(file)
-            if not all(key in param_list[key] for key in self.HYPERPARAM_NAMES):
+            if {param["name"] for param in param_list} != self.HYPERPARAM_NAMES:
                 raise ValueError("You are missing some of the required hyperparameters in your saved file."
                                  "If you havent set all of them, you probably should just pass None to initialize them"
                                  "to their default values and then tune them from there.")

@@ -41,7 +41,7 @@ class StereoBMCalibrator(StereoMatcherCalibrator):
                          )
         
         # I will cast the stereo matcher to stereoBM since I am defining it above.
-        self.stereo_matcher = cast(StereoBM, self.stereo_matcher)
+        self.stereo_matcher: StereoBM = cast(StereoBM, self.stereo_matcher)
 
         self._save_path = new_save_path
 
@@ -69,7 +69,9 @@ class StereoBMCalibrator(StereoMatcherCalibrator):
             if not isinstance(slider_params, list):
                 raise ValueError("Your slider params json is not a list")
             for slider_info in slider_params:
-                slider_info_list.append(slider_info["name"] | slider_bm_params["name"])
+                slider_info: dict = slider_info
+                slider_info["default_val"] = slider_bm_params[slider_info["name"]]
+                slider_info_list.append(slider_info)
         return slider_info_list
 
     def tune_disparity_params(self) -> None:
@@ -93,7 +95,8 @@ class StereoBMCalibrator(StereoMatcherCalibrator):
         ]
 
         with open(self._save_path, "w") as file:
-            json.dump(saved_param_list, file)
+            json.dump(saved_param_list, file, indent=4)
+        print("Hyperparameters saved at", self._save_path)
 
     def _convert_to_dpg_texture(self, image: np.ndarray) -> np.ndarray:
         """
@@ -104,7 +107,7 @@ class StereoBMCalibrator(StereoMatcherCalibrator):
             image: A nxd image of RGBA format, float32. Both of these formats must be there otherwise you
                     will get image corruption at best and crash at worst.
         """
-        if image.dtype != np.float32:
+        if image.dtype != np.uint8:
             raise ValueError("Your image datatype is incorrect!")
 
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGBA)
@@ -124,12 +127,15 @@ class StereoBMCalibrator(StereoMatcherCalibrator):
             The disparity map as a (h,w,3) BGR image,
             The height of the image,
             The width of the image.
+            The Unit will be 16x the actual pixel disparity. e.g. If you see 16, then that means that 
+            there was actually 1 pixel of disparity.
         """
         if self.rectified_left is None or self.rectified_right is None:
             raise ValueError("Rectified left or rectified right is None! "
                              "Did you make sure to call load_stereo_maps() as well as load_image_pair() "
                              "in that order?")
-        disparity: np.ndarray = self.stereo_matcher.get_disparity_map(self.rectified_left, self.rectified_right)
+        disparity: np.ndarray = self.stereo_matcher.get_disparity_no_rectification(self.rectified_left,
+                                                                                   self.rectified_right)
         disparity = (disparity.astype(np.float32) / 16) - self.stereo_matcher.call_getter_by_snk_case("min_disparity")
         disparity = disparity / self.stereo_matcher.call_getter_by_snk_case("num_disparities")
         disparity = np.clip(disparity, 0, 1)
