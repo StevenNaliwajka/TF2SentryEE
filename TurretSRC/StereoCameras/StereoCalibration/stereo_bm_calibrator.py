@@ -41,18 +41,18 @@ class StereoBMCalibrator(StereoMatcherCalibrator):
                          )
         
         # I will cast the stereo matcher to stereoBM since I am defining it above.
-        self.stereo_matcher: StereoBM = cast(StereoBM, self.stereo_matcher)
+        self._stereo_matcher: StereoBM = cast(StereoBM, self._stereo_matcher)
 
         self._save_path = new_save_path
 
-        self.height: int = -1
-        self.width: int = -1
+        self._height: int = -1
+        self._width: int = -1
 
-        disparity, self.height, self.width = self._compute_disparity()
+        disparity, self._height, self._width = self._compute_disparity()
 
-        self.curr_dpg_image: np.ndarray = self._convert_to_dpg_texture(disparity)
+        self._curr_dpg_image: np.ndarray = self._convert_to_dpg_texture(disparity)
 
-        self.dpg_gui: DPGGUI = DPGGUI(self._create_slider_dict(), self._save_params, self._on_slider_update)
+        self._dpg_gui: DPGGUI = DPGGUI(self._create_slider_dict(), self._save_params, self._on_slider_update)
 
     def _create_slider_dict(self) -> list[dict]:
         """
@@ -63,7 +63,7 @@ class StereoBMCalibrator(StereoMatcherCalibrator):
             for DPG.
         """
         slider_info_list: list[dict] = []
-        slider_bm_params: dict = self.stereo_matcher.get_all_hyperparams()
+        slider_bm_params: dict = self._stereo_matcher.get_all_hyperparams()
         with open(self.SLIDER_BM_PARAMS_JSON) as file:
             slider_params: list = json.load(file)
             if not isinstance(slider_params, list):
@@ -78,14 +78,14 @@ class StereoBMCalibrator(StereoMatcherCalibrator):
         """
         This function starts the DPG gui and allows for the user to tune their hyperparameters.
         """
-        self.dpg_gui.show_gui(self.curr_dpg_image, self.width, self.height)
+        self._dpg_gui.show_gui(self._curr_dpg_image, self._width, self._height)
 
     def _save_params(self) -> None:
         """
         This callback function will save the current hyperparameters that have been selected.
         You should bind this callback function to the save button on DPG.
         """
-        hyperparams: dict = self.stereo_matcher.get_all_hyperparams()
+        hyperparams: dict = self._stereo_matcher.get_all_hyperparams()
         saved_param_list = [
             {
                 "name": name,
@@ -130,14 +130,14 @@ class StereoBMCalibrator(StereoMatcherCalibrator):
             The Unit will be 16x the actual pixel disparity. e.g. If you see 16, then that means that 
             there was actually 1 pixel of disparity.
         """
-        if self.rectified_left is None or self.rectified_right is None:
+        if self._rectified_left is None or self._rectified_right is None:
             raise ValueError("Rectified left or rectified right is None! "
                              "Did you make sure to call load_stereo_maps() as well as load_image_pair() "
                              "in that order?")
-        disparity: np.ndarray = self.stereo_matcher.get_disparity_no_rectification(self.rectified_left,
-                                                                                   self.rectified_right)
-        disparity = (disparity.astype(np.float32) / 16) - self.stereo_matcher.call_getter_by_snk_case("min_disparity")
-        disparity = disparity / self.stereo_matcher.call_getter_by_snk_case("num_disparities")
+        disparity: np.ndarray = self._stereo_matcher.get_disparity_no_rectification(self._rectified_left,
+                                                                                   self._rectified_right)
+        disparity = (disparity.astype(np.float32) / 16) - self._stereo_matcher.call_getter_by_snk_case("min_disparity")
+        disparity = disparity / self._stereo_matcher.call_getter_by_snk_case("num_disparities")
         disparity = np.clip(disparity, 0, 1)
         disparity = (disparity * 255).astype(np.uint8)
         height, width = disparity.shape[0], disparity.shape[1]
@@ -152,10 +152,10 @@ class StereoBMCalibrator(StereoMatcherCalibrator):
             sender_tag: The slider tag that sent the message. This will be defined in the json file above.
             new_value: The new value that the slider is taking on.
         """
-        self.stereo_matcher.call_setter_by_snk_case(sender_tag, new_value)
+        self._stereo_matcher.call_setter_by_snk_case(sender_tag, new_value)
         disparity, height, width = self._compute_disparity()
-        self.height = height
-        self.width = width
+        self._height = height
+        self._width = width
         # Note here that we never overwrite the memory address of the image.
         # This is because DPG requires us to just change the texture and not point to a new place.
-        self.curr_dpg_image[:] = self._convert_to_dpg_texture(disparity)
+        self._curr_dpg_image[:] = self._convert_to_dpg_texture(disparity)

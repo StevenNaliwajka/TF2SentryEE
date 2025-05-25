@@ -28,8 +28,8 @@ class OpenCVStereoMatcher(StereoMatcher):
         super().__init__()
         left_stereo_map, right_stereo_map = self._check_left_and_right_maps(left_stereo_map_path, right_stereo_map_path)
 
-        self.left_stereo_map: tuple[np.ndarray, np.ndarray] = left_stereo_map
-        self.right_stereo_map: tuple[np.ndarray, np.ndarray] = right_stereo_map
+        self._left_stereo_map: tuple[np.ndarray, np.ndarray] = left_stereo_map
+        self._right_stereo_map: tuple[np.ndarray, np.ndarray] = right_stereo_map
 
         # These are the parameters that you better set before calling set_stereo_maps.
         # You should probably put these after your init call if you decide to extend this class.
@@ -41,13 +41,13 @@ class OpenCVStereoMatcher(StereoMatcher):
 
     def rectify_stereo_pair(self, left_image: np.ndarray, right_image: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         rectified_left: np.ndarray = cv2.remap(left_image,
-                                               *self.left_stereo_map,
+                                               *self._left_stereo_map,
                                                cv2.INTER_LINEAR,  # Slow but we only compute once.
                                                cv2.BORDER_CONSTANT,
                                                0)  # Sets default border value to 0 (blk)
 
         rectified_right: np.ndarray = cv2.remap(right_image,
-                                                *self.right_stereo_map,
+                                                *self._right_stereo_map,
                                                 cv2.INTER_LINEAR,
                                                 cv2.BORDER_CONSTANT,
                                                 0)

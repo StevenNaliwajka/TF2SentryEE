@@ -22,10 +22,10 @@ class StereoMatcherCalibrator(ABC):
             stereo_matcher: The stereo algorithm in particular that you will tune.
         """
 
-        self.rectified_left: cv2.typing.MatLike = None
-        self.rectified_right: cv2.typing.MatLike = None
+        self._rectified_left: cv2.typing.MatLike = None
+        self._rectified_right: cv2.typing.MatLike = None
 
-        self.stereo_matcher: StereoMatcher = stereo_matcher
+        self._stereo_matcher: StereoMatcher = stereo_matcher
 
         self.load_new_img_pair(left_image_path, right_image_path)
         
@@ -63,7 +63,7 @@ class StereoMatcherCalibrator(ABC):
         if not right_image_path:
             raise ValueError("Right image path is Empty or None!")
 
-        self.rectified_left, self.rectified_right = self.stereo_matcher.rectify_stereo_pair(
+        self._rectified_left, self._rectified_right = self._stereo_matcher.rectify_stereo_pair(
             cv2.imread(str(left_image_path), cv2.IMREAD_GRAYSCALE),
             cv2.imread(str(right_image_path), cv2.IMREAD_GRAYSCALE)
         )

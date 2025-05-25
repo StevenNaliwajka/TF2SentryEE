@@ -26,8 +26,8 @@ class StereoBM(OpenCVStereoMatcher):
 
         left_stereo_map, right_stereo_map = self._check_left_and_right_maps(left_stereo_map_path, right_stereo_map_path)
 
-        self.left_stereo_map: tuple[np.ndarray, np.ndarray] = left_stereo_map
-        self.right_stereo_map: tuple[np.ndarray, np.ndarray] = right_stereo_map
+        self._left_stereo_map: tuple[np.ndarray, np.ndarray] = left_stereo_map
+        self._right_stereo_map: tuple[np.ndarray, np.ndarray] = right_stereo_map
 
         if has_compiled_with_cuda() and cv2.cuda.getCudaEnabledDeviceCount() > 0:
             # You will see a linter warning here if you do not have the CUDA compiled version of openCV
