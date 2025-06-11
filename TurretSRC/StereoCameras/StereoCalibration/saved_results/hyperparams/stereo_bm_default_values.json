@@ -1,0 +1,42 @@
+[
+  {
+    "name": "num_disparities",
+    "default_val": 64
+  },
+  {
+    "name": "block_size",
+    "default_val": 21
+  },
+  {
+    "name": "pre_filter_size",
+    "default_val": 9
+  },
+  {
+    "name": "pre_filter_cap",
+    "default_val": 31
+  },
+  {
+    "name": "texture_threshold",
+    "default_val": 10
+  },
+  {
+    "name": "uniqueness_ratio",
+    "default_val": 15
+  },
+  {
+    "name": "speckle_range",
+    "default_val": 0
+  },
+  {
+    "name": "speckle_window_size",
+    "default_val": 0
+  },
+  {
+    "name": "disp12_max_diff",
+    "default_val": -1
+  },
+  {
+    "name": "min_disparity",
+    "default_val": 0
+  }
+]
