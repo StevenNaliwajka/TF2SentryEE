@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import threading
 from typing import TYPE_CHECKING, Optional
 import cv2
 
@@ -9,6 +11,7 @@ if TYPE_CHECKING:
 
 from IO.stereo_camera import StereoCamera
 from concurrent.futures import ThreadPoolExecutor, Future
+from threading import Lock
 
 from IO.camera import Camera
 
@@ -53,6 +56,8 @@ class MakeshiftStereoCamera(StereoCamera):
         self._right_camera: Camera = right_camera
         self._stereo_matcher: StereoMatcher = stereo_matcher
 
+        self._lock: threading.Lock = Lock()
+
         self.baseline_mm: float = baseline_length_mm
         self.focal_length_px: np.ndarray = focal_length_px
 
@@ -64,13 +69,13 @@ class MakeshiftStereoCamera(StereoCamera):
         timeout_secs: float the number of seconds before raising an exception.
             (This is necessary because we don't want desync between the cameras)
         """
-        left_success: Future = self._executor.submit(self._left_camera.get_frame)
-        right_success: Future = self._executor.submit(self._right_camera.get_frame)
+        left_success: Future = self._executor.submit(self._left_camera.decode_frame)
+        right_success: Future = self._executor.submit(self._right_camera.decode_frame)
 
         left_success.result(timeout_secs)
         right_success.result(timeout_secs)
-        left_camera_result: Future = self._executor.submit(self._left_camera.decode_frame)
-        right_camera_result: Future = self._executor.submit(self._right_camera.decode_frame)
+        left_camera_result: Future = self._executor.submit(self._left_camera.consume_frame)
+        right_camera_result: Future = self._executor.submit(self._right_camera.consume_frame)
 
         left_res_tuple: tuple[bool, cv2.typing.MatLike] = left_camera_result.result(timeout_secs)
         right_res_tuple: tuple[bool, cv2.typing.MatLike] = right_camera_result.result(timeout_secs)
@@ -92,16 +97,17 @@ class MakeshiftStereoCamera(StereoCamera):
         """
         if self.baseline_mm is None:
             raise ValueError("Your baseline is None! I cannot compute depth without the baseline \n"
-                             "If you left the baseline unfilled in the constructor, did you make sure to call the function"
-                             "`initialize_lazy_values` later??")
+                             "If you left the baseline unfilled in the constructor, did you make sure to call the "
+                             "function `initialize_lazy_values` later??")
         if not self.focal_length_px:
-            raise ValueError("Your focal length is None/Empty! I cannot compute depth without the x focal length in pixels \n"
-                             "If you left the focal length unfilled in the constructor, did you make sure to call the function"
-                             "`initialize_lazy_values` later??")
+            raise ValueError(
+                "Your focal length is None/Empty! I cannot compute depth without the x focal length in pixels \n"
+                "If you left the focal length unfilled in the constructor, did you make sure to call the function"
+                "`initialize_lazy_values` later??")
         if self._stereo_matcher is None:
             raise ValueError("Your stereo matcher is None/Empty! \n"
-                             "If you left the stereo_matcher unfilled in the constructor, did you make sure to call the function"
-                             "`initialize_lazy_values` later??")
+                             "If you left the stereo_matcher unfilled in the constructor, did you make sure to call "
+                             "the function `initialize_lazy_values` later??")
         left_image, right_image = self.get_images()
 
         depth_map: np.ndarray = self._stereo_matcher.get_depth_map(
@@ -111,8 +117,9 @@ class MakeshiftStereoCamera(StereoCamera):
             self.baseline_mm
         )
         return np.dstack((left_image, depth_map))
-    
-    def initialize_lazy_values(self,matcher: cv2.StereoMatcher, baseline_mm: float, focal_length_px: np.ndarray) -> None:
+
+    def initialize_lazy_values(self, matcher: cv2.StereoMatcher, baseline_mm: float,
+                               focal_length_px: np.ndarray) -> None:
         """
         This function allows for delayed initialization of the baseline, focal length, and stereo matcher.
         The reason that this is useful is because we may use the computed values for the baseline and
@@ -123,9 +130,14 @@ class MakeshiftStereoCamera(StereoCamera):
         self._stereo_matcher = matcher
         self.baseline_mm = baseline_mm
         self.focal_length_px = focal_length_px
-    
+
     def get_baseline(self) -> float:
         return self.baseline_mm
-    
+
     def get_focal_length_px(self) -> np.ndarray:
         return self.focal_length_px
+
+    def release_interfaces(self) -> None:
+        with self._lock:
+            self._left_camera.release_camera()
+            self._right_camera.release_camera()
