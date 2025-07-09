@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
 
 from pathlib import Path
 
@@ -7,7 +6,7 @@ import cv2
 import numpy as np
 from abc import abstractmethod
 
-from .stereo_matcher import StereoMatcher
+from src.IOImplementations.TurretSRC.StereoCameras.stereo_matcher import StereoMatcher
 
 
 class OpenCVStereoMatcher(StereoMatcher):
