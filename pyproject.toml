@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 packages = ["TurretSRC"]
 
 [project]
-name = "IOImplementations"
+name = "Implementations"
 version = "0.1.0"
 description = "The concrete implementations for the TF2 Sentry"
 readme = "readme.md"
@@ -25,14 +25,15 @@ dependencies = [
      "adafruit-circuitpython-motor==3.4.17",
      "adafruit-circuitpython-pca9685==3.4.19",
      "dearpygui==2.1.0",
-     "depthai==2.30.0.0",
+     "depthai==3.0.0rc2",
      "graphlib-backport==1.1.0; python_version<'3.9'",
-     "opencv-contrib-python==4.9.0.80",
-     "opencv-python==4.9.0.80",
+     "numpy==2.1.3",
+     "opencv-contrib-python==4.12.0.88",
+     "opencv-python==4.12.0.88",
      "playsound3==3.2.4",
      "pyftdi==0.55.4",
      "pyusb==1.2.1",
-     "scipy==1.13.1",
+     "scipy==1.16.0",
      "tqdm==4.67.1",
      "ultralytics==8.3.163"
 ]

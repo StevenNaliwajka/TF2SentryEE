@@ -4,15 +4,15 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from src.IO.depthvision import DepthVision
-    from src.IOImplementations.TurretSRC.StereoCameras.StereoCalibration.stereo_calibrate import CameraCalibrationResults
-    from src.IOImplementations.TurretSRC.StereoCameras.StereoCalibration.stereo_calibrate import StereoCalibrationResults
+    from TurretSRC.StereoCameras.StereoCalibration.stereo_calibrate import CameraCalibrationResults
+    from TurretSRC.StereoCameras.StereoCalibration.stereo_calibrate import StereoCalibrationResults
 
-import src.IOImplementations.TurretSRC.StereoCameras.StereoCalibration.stereo_calibrate as calibrate
+import TurretSRC.StereoCameras.StereoCalibration.stereo_calibrate as calibrate
 from pathlib import Path
-from src.IOImplementations.TurretSRC.StereoCameras.makeshift_stereo_camera import MakeshiftStereoCamera
-from src.IOImplementations.TurretSRC.FT232HCode.Camera.arducam import Arducam
-from src.IOImplementations.TurretSRC.StereoCameras.stereo_matcher import StereoMatcher
-from src.IOImplementations.TurretSRC.StereoCameras.stereo_bm import StereoBM
+from TurretSRC.StereoCameras.makeshift_stereo_camera import MakeshiftStereoCamera
+from TurretSRC.FT232HCode.Camera.arducam import Arducam
+from TurretSRC.StereoCameras.stereo_matcher import StereoMatcher
+from TurretSRC.StereoCameras.stereo_bm import StereoBM
 import numpy as np
 
 

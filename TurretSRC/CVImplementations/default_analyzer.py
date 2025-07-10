@@ -2,8 +2,7 @@ import numpy as np
 
 from src.CV.analyzer import Analyzer
 from typing import Sequence
-from src.IOImplementations.TurretSRC.CVImplementations.opencv_detector import PersonDetector
-
+from TurretSRC.CVImplementations.opencv_detector import PersonDetector
 
 class DefaultAnalyzer(Analyzer):
     def __init__(self):

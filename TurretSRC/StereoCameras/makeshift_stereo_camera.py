@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 
 if TYPE_CHECKING:
-    from src.IOImplementations.TurretSRC.StereoCameras.stereo_matcher import StereoMatcher
+    from TurretSRC.StereoCameras.stereo_matcher import StereoMatcher
 
 from src.IO.stereo_camera import StereoCamera
 from concurrent.futures import ThreadPoolExecutor, Future

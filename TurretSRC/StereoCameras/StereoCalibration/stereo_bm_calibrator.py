@@ -6,11 +6,11 @@ from pathlib import Path
 from typing import cast
 
 import numpy as np
-from src.IOImplementations.TurretSRC.StereoCameras.StereoCalibration.dpg_gui import DPGGUI
+from TurretSRC.StereoCameras.StereoCalibration.dpg_gui import DPGGUI
 import cv2
-from src.IOImplementations.TurretSRC.StereoCameras.StereoCalibration.stereo_matcher_calibrator import StereoMatcherCalibrator
+from TurretSRC.StereoCameras.StereoCalibration.stereo_matcher_calibrator import StereoMatcherCalibrator
 
-from src.IOImplementations.TurretSRC.StereoCameras.stereo_bm import StereoBM
+from TurretSRC.StereoCameras.stereo_bm import StereoBM
 
 
 class StereoBMCalibrator(StereoMatcherCalibrator):

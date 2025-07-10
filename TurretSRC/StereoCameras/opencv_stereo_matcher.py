@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 from abc import abstractmethod
 
-from src.IOImplementations.TurretSRC.StereoCameras.stereo_matcher import StereoMatcher
+from TurretSRC.StereoCameras.stereo_matcher import StereoMatcher
 
 
 class OpenCVStereoMatcher(StereoMatcher):

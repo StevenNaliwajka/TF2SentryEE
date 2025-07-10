@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from src.IOImplementations.TurretSRC.StereoCameras.StereoCalibration.stereo_calibrate import CameraCalibrationResults
+    from TurretSRC.StereoCameras.StereoCalibration.stereo_calibrate import CameraCalibrationResults
 
 class PiCamera(Camera):
     def __init__(self, camera_num, resolution=(640, 480), cap_fps=30,

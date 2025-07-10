@@ -6,7 +6,7 @@ import numpy as np
 import depthai as dai
 from threading import Lock
 from typing import cast, Optional
-from src.IOImplementations.TurretSRC.StereoCameras.oak_d_pipeline_component import OakDPipelineComponent
+from TurretSRC.StereoCameras.oak_d_pipeline_component import OakDPipelineComponent
 from graphlib import TopologicalSorter
 
 from src.IO.stereo_camera import StereoCamera

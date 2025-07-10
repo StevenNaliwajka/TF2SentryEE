@@ -1,10 +1,10 @@
 from src.IO.io import IO
 from src.RuntimeConfigs.io_configurable import IOConfigurable
-from src.IOImplementations.TurretSRC.FT232HCode.motorcontrollerft232h import MotorControllerFT232H
-from src.IOImplementations.TurretSRC.FT232HCode.soundcontrollerft232h import SoundControllerFT232H
-from src.IOImplementations.TurretSRC.FT232HCode.firingcontrollerft232h import FiringControllerFT232H
-from src.IOImplementations.TurretSRC.FT232HCode.peripheralcontrollerft232h import PeripheralControllerFT232H
-from src.IOImplementations.TurretSRC.FT232HCode.wranglercontrollerft232h import WranglerControllerFT232H
+from TurretSRC.FT232HCode.motorcontrollerft232h import MotorControllerFT232H
+from TurretSRC.FT232HCode.soundcontrollerft232h import SoundControllerFT232H
+from TurretSRC.FT232HCode.firingcontrollerft232h import FiringControllerFT232H
+from TurretSRC.FT232HCode.peripheralcontrollerft232h import PeripheralControllerFT232H
+from TurretSRC.FT232HCode.wranglercontrollerft232h import WranglerControllerFT232H
 from threading import Event
 
 

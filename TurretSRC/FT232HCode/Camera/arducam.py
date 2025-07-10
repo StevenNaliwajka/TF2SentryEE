@@ -8,7 +8,7 @@ from threading import Lock
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.IOImplementations.TurretSRC.StereoCameras.StereoCalibration.stereo_calibrate import CameraCalibrationResults
+    from TurretSRC.StereoCameras.StereoCalibration.stereo_calibrate import CameraCalibrationResults
 
 '''
 Arducam Resolutions

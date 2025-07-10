@@ -4,7 +4,7 @@ import board
 import digitalio
 from threading import Event
 from src.IO.wranglercontroller import WranglerController
-from src.IOImplementations.TurretSRC.FT232HCode.motorcontrollerft232h import MotorControllerFT232H
+from TurretSRC.FT232HCode.motorcontrollerft232h import MotorControllerFT232H
 
 
 class WranglerControllerFT232H(WranglerController):

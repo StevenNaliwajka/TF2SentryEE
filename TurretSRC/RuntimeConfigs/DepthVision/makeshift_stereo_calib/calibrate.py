@@ -1,15 +1,15 @@
 from __future__ import annotations
 import argparse
-import src.IOImplementations.TurretSRC.StereoCameras.StereoCalibration.stereo_calibrate as calibrator
+import TurretSRC.StereoCameras.StereoCalibration.stereo_calibrate as calibrator
 from src import IOImplementations as calib_config
-from src.IOImplementations.TurretSRC.StereoCameras.StereoCalibration.stereo_bm_calibrator import StereoBMCalibrator
+from TurretSRC.StereoCameras.StereoCalibration.stereo_bm_calibrator import StereoBMCalibrator
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.IOImplementations.TurretSRC.StereoCameras.StereoCalibration.stereo_matcher_calibrator import \
+    from TurretSRC.StereoCameras.StereoCalibration.stereo_matcher_calibrator import \
         StereoMatcherCalibrator
-    from src.IOImplementations.TurretSRC.RuntimeConfigs.DepthVision.makeshift_stereo_calib.calibration_config import Config
+    from TurretSRC.RuntimeConfigs.DepthVision.makeshift_stereo_calib.calibration_config import Config
 
 if __name__ == '__main__':
     parser: argparse.ArgumentParser = argparse.ArgumentParser(

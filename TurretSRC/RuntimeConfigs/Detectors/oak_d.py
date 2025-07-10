@@ -4,9 +4,9 @@ from typing import Sequence, cast
 import numpy as np
 import depthai as dai
 
-from src.IOImplementations.TurretSRC.StereoCameras.oak_d_pipeline_component import OakDPipelineComponent
+from TurretSRC.StereoCameras.oak_d_pipeline_component import OakDPipelineComponent
 from src.CV.detector import Detector
-from src.IOImplementations.TurretSRC.StereoCameras.oak_d_stereo_camera import OakD
+from TurretSRC.StereoCameras.oak_d_stereo_camera import OakD
 
 
 class OakDDetector(Detector, OakDPipelineComponent):

@@ -5,7 +5,7 @@ from abc import abstractmethod, ABC
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.IOImplementations.TurretSRC.StereoCameras.stereo_matcher import StereoMatcher
+    from TurretSRC.StereoCameras.stereo_matcher import StereoMatcher
 
 
 
