@@ -19,7 +19,7 @@ class PersonTracker:
         self.num_frames_missing: list[int] = []
         self.last_seen_location: list[np.ndarray] = []
 
-    def add_trackers(self, frame, bboxes: list[np.ndarray]) -> None:
+    def add_trackers(self, frame: np.ndarray, bboxes: list[np.ndarray]) -> None:
         """
         This function shall be called every time we switch to detection mode.
         If this function is not called, the tracking mode will not know what to track
@@ -39,7 +39,7 @@ class PersonTracker:
             self.num_frames_missing.append(0)
             self.last_seen_location.append(bbox)
 
-    def tracking_update(self, new_frame) -> None:
+    def tracking_update(self, new_frame: np.ndarray) -> None:
         """
         This function will update all trackers and their corresponding bounding
         boxes.
@@ -56,13 +56,13 @@ class PersonTracker:
                 self.num_frames_missing[i] += 1
                 continue
 
-    def get_last_seen_bbox(self, targetID) -> np.ndarray:
+    def get_last_seen_bbox(self, targetID: int) -> np.ndarray:
         """
         This function will get the last seen location of specified target.
         """
         return self.last_seen_location[targetID]
 
-    def get_num_frames_missing(self, targetID) -> int:
+    def get_num_frames_missing(self, targetID: int) -> int:
         """
         This function returns the number of frames that a target has been missing.
         """

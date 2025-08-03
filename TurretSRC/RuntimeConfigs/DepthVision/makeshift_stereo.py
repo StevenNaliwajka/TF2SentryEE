@@ -17,15 +17,20 @@ import numpy as np
 
 
 class MakeshiftStereoConfig(DepthVisionConfigurable):
+    STEREO_DIR: Path = Path("TurretSRC/StereoCameras/")
+
+    def __init__(
+            self,
+            left_stereo_map: Path = STEREO_DIR / "saved_results/camera_calib/left_stereo_map.npz",
+            right_stereo_map: Path = STEREO_DIR / "saved_results/camera_calib/right_stereo_map.npz",
+            hyperparams_path: Path = STEREO_DIR / "StereoCalibration/saved_results/hyperparams/slider_bm_params.json"
+    ) -> None:
+        self.left_stereo_map: Path = left_stereo_map
+        self.right_stereo_map: Path = right_stereo_map
+        self.hyperparams_path: Path = hyperparams_path
 
     def get_depthvision(self) -> DepthVision:
-        STEREO_DIR: Path = Path("../IOImplementations/TurretSRC/StereoCameras/")
-
-        LEFT_STEREO_MAP: Path = STEREO_DIR / "saved_results/camera_calib/left_stereo_map.npz"
-        RIGHT_STEREO_MAP: Path = STEREO_DIR / "saved_results/camera_calib/right_stereo_map.npz"
-        HYPERPARAMS_PATH: Path = STEREO_DIR / "StereoCalibration/saved_results/hyperparams/slider_bm_params.json"
-
-        STEREO_MATCHER: StereoMatcher = StereoBM(LEFT_STEREO_MAP, RIGHT_STEREO_MAP, HYPERPARAMS_PATH)
+        STEREO_MATCHER: StereoMatcher = StereoBM(self.left_stereo_map, self.right_stereo_map, self.hyperparams_path)
 
         results: dict = calibrate.load_requested_results(
             {"left_camera_info", "right_camera_info", "general_stereo_info_path"})

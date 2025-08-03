@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional
 import cv2
 
 import numpy as np
+from numpy import typing as npt
 
 if TYPE_CHECKING:
     from TurretSRC.StereoCameras.stereo_matcher import StereoMatcher
@@ -80,7 +81,7 @@ class MakeshiftStereoCamera(StereoCamera):
 
         return left_res_tuple[1], right_res_tuple[1]
 
-    def get_image_with_depth(self) -> cv2.typing.MatLike:
+    def get_image_with_depth(self) -> tuple[npt.NDArray[np.uint8], npt.NDArray[np.uint16]]:
         """
         This function gets the image as well as the depth of each pixel in the image.
         returns:
@@ -108,7 +109,8 @@ class MakeshiftStereoCamera(StereoCamera):
             float(self.focal_length_px[0]),
             self.baseline_mm
         )
-        return np.dstack((left_image, depth_map))
+
+        return left_image, depth_map
 
     def initialize_lazy_values(self, matcher: cv2.StereoMatcher, baseline_mm: float,
                                focal_length_px: np.ndarray) -> None:

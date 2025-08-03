@@ -1,8 +1,8 @@
 # Ignore the CV implementations of detectors and trackers
-TurretSRC/CVImplementations/CVModel/Detection/*
-!TurretSRC/CVImplementations/CVModel/Detection/readme.md
-TurretSRC/CVImplementations/CVModel/Tracking/*
-!TurretSRC/CVImplementations/CVModel/Tracking/readme.md
+TurretSRC/CVImplementations/CVModels/Detection/*
+!TurretSRC/CVImplementations/CVModels/Detection/readme.md
+TurretSRC/CVImplementations/CVModels/Tracking/*
+!TurretSRC/CVImplementations/CVModels/Tracking/readme.md
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

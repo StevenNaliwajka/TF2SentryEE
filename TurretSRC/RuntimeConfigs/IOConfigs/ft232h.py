@@ -19,7 +19,7 @@ class FT232HIOBuilder(IOConfigurable):
             firing_controller=FiringControllerFT232H(),
             peripheral_controller=PeripheralControllerFT232H(),
             wrangler_controller=WranglerControllerFT232H(MOTOR_CONTROLLER, WRANGLER_EVENT),
-            imu=None
+            imu_controller=None
         )
 
         return io

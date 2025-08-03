@@ -2,74 +2,67 @@ from __future__ import annotations
 
 import threading
 
+import cv2
 import numpy as np
 import depthai as dai
 from threading import Lock
-from typing import cast, Optional
-from TurretSRC.StereoCameras.oak_d_pipeline_component import OakDPipelineComponent
-from graphlib import TopologicalSorter
+from typing import cast
+
+from numpy import typing as npt
+from TurretSRC.RuntimeConfigs.DepthVision.oak_d_pipeline_component import OakDPipelineComponent
 
 from src.IO.stereo_camera import StereoCamera
 
 
 class OakD(StereoCamera, OakDPipelineComponent):
 
-    def __init__(self, dependency_graph: TopologicalSorter,
-                 resolution: tuple[int, int] = (640, 480), cap_fps: int = 30,
-                 use_structured_light: bool = False) -> None:
+    def __init__(self) -> None:
+        # We will use a hack to assign None initially while not allowing None later on.
 
         # Nodes:
-        self.left_cam: Optional[dai.node.Camera] = None
-        self.right_cam: Optional[dai.node.Camera] = None
-        self.stereo_depth: Optional[dai.node.StereoDepth] = None
-        self.rgb_cam: Optional[dai.node.Camera] = None
-        self.rgbd_node: Optional[dai.node.RGBD] = None
+        super().__init__()
+        self.left_cam: dai.node.Camera = cast(dai.node.Camera, None)
+        self.right_cam: dai.node.Camera = cast(dai.node.Camera, None)
+        self.stereo_depth: dai.node.StereoDepth = cast(dai.node.StereoDepth, None)
+        self.rgb_cam: dai.node.Camera = cast(dai.node.Camera, None)
+        self.rgbd_node: dai.node.RGBD = cast(dai.node.RGBD, None)
 
         # Outputs:
-        self.left_out: Optional[dai.Node.Output] = None
-        self.right_out: Optional[dai.Node.Output] = None
-        self.rgb_out: Optional[dai.Node.Output] = None
-        self.rgbd_out: Optional[dai.Node.Output] = None
+        self.left_out: dai.Node.Output = cast(dai.Node.Output, None)
+        self.right_out: dai.Node.Output = cast(dai.Node.Output, None)
+        self.rgb_out: dai.Node.Output = cast(dai.Node.Output, None)
+        self.rgbd_out: dai.Node.Output = cast(dai.Node.Output, None)
 
         # MessageQueues
-        self.left_messages: Optional[dai.MessageQueue] = None
-        self.right_messages: Optional[dai.MessageQueue] = None
-        self.rgb_d_messages: Optional[dai.MessageQueue] = None
+        self.left_messages: dai.MessageQueue = cast(dai.MessageQueue, None)
+        self.right_messages: dai.MessageQueue = cast(dai.MessageQueue, None)
+        self.rgb_d_messages: dai.MessageQueue = cast(dai.MessageQueue, None)
 
         # Camera attributes
-        self.resolution: tuple[int, int] = resolution
-        self.capture_fps: int = cap_fps
-        self.use_structured_light: bool = use_structured_light
+        self.resolution: tuple[int, int] = cast(tuple[int, int], None)
+        self.capture_fps: int = cast(int, None)
+        self.use_structured_light: bool = cast(bool, None)
 
         self._lock: threading.Lock = Lock()
         self.pipeline: dai.Pipeline = dai.Pipeline()
         self._device: dai.Device = self.pipeline.getDefaultDevice()
 
-        # Print DeviceID, USB speed, and available cameras on the device
-        print('DeviceID:', self._device.getDeviceInfo().getDeviceId())
-
-        print('USB speed:', self._device.getUsbSpeed())
-
-        print('Connected cameras:', self._device.getConnectedCameras())
+    def initialize_pipelines(self, parents: dict[str, OakDPipelineComponent]) -> None:
 
         self.left_cam, self.right_cam = self._initialize_stereo_pair()
         self.rgb_cam = self._initialize_color_camera()
 
-        self.dependencies: TopologicalSorter = dependency_graph
-        self.handle_dependents()
-
-        self.start_camera()
-
-    def initialize_pipelines(self, parents: list[OakDPipelineComponent]) -> None:
         self.left_out = self.left_cam.requestOutput(self.resolution)
         self.right_out = self.right_cam.requestOutput(self.resolution)
-        self.rgb_out = self.rgb_cam.requestOutput(self.resolution, type=dai.ImgFrame.Type.RGB888i)  # interleaved
+        self.rgb_out = self.rgb_cam.requestOutput(self.resolution, dai.ImgFrame.Type.RGB888i)  # interleaved
 
         self.left_messages = self.left_out.createOutputQueue()
         self.right_messages = self.left_out.createOutputQueue()
 
         self.stereo_depth = self.pipeline.create(dai.node.StereoDepth)
         self.stereo_depth.setDefaultProfilePreset(dai.node.StereoDepth.PresetMode.DEFAULT)
+        self.stereo_depth.setRectifyEdgeFillColor(0)
+        self.stereo_depth.enableDistortionCorrection(True)
 
         self.left_out.link(self.stereo_depth.left)
         self.right_out.link(self.stereo_depth.right)
@@ -78,6 +71,7 @@ class OakD(StereoCamera, OakDPipelineComponent):
         self.rgbd_node.setDepthUnits(dai.StereoDepthConfig.AlgorithmControl.DepthUnit.MILLIMETER)
         self.rgb_out.link(self.rgbd_node.inColor)
         self.stereo_depth.depth.link(self.rgbd_node.inDepth)
+        self.rgb_out.link(self.stereo_depth.inputAlignTo)
         self.rgb_d_messages = self.rgbd_node.rgbd.createOutputQueue()
 
         if self.use_structured_light:
@@ -87,6 +81,20 @@ class OakD(StereoCamera, OakDPipelineComponent):
                             Device.setIrLaserDotProjectorIntensity(0.8)
                             Device.setIrFloodLightIntensity(0)
                             """)
+
+    def build_camera(self) -> None:
+        """
+        This will function as our real __init__()
+        """
+        # Print DeviceID, USB speed, and available cameras on the device
+        print('DeviceID:', self._device.getDeviceInfo().getDeviceId())
+
+        print('USB speed:', self._device.getUsbSpeed())
+
+        print('Connected cameras:', self._device.getConnectedCameras())
+
+        self.start_camera()
+        pass
 
     def get_images(self) -> tuple[np.ndarray, np.ndarray]:
         """
@@ -106,22 +114,23 @@ class OakD(StereoCamera, OakDPipelineComponent):
 
         return left.getCvFrame(), right.getCvFrame()
 
-    def get_image_with_depth(self) -> np.ndarray:
+    def get_image_with_depth(self) -> tuple[npt.NDArray[np.uint8], npt.NDArray[np.uint16]]:
         """
-        This function will return an RGBD image.
+        This function will return an RGB image along with the corresponding depth.
         Returns:
-            An RGB-D image of the format (height,width,channels).
-            The channels will be in RGB order with the last channel being D (depth).
-            The depth will be in the units specified as a hyperparameter above (millimeters by default)
+            A double of the format:
+            1. An RGB image of the format (height,width,channels).
+            2. The depth map of each pixel in the unit specified earlier (default: millimeters)
         """
         image_with_depth: dai.ADatatype = self.rgb_d_messages.get()
 
         if not isinstance(image_with_depth, dai.RGBDData):
             raise RuntimeError("The rgbd queue returned back the wrong message type.")
 
-        rgb_image: np.ndarray = image_with_depth.getRGBFrame().getCvFrame()
+        # getCVFrame automatically parses this as a BGR frame, so we have to flip the axes to get RGB.
+        rgb_image: np.ndarray = image_with_depth.getRGBFrame().getCvFrame()[:, :, ::-1]
         depth_image: np.ndarray = image_with_depth.getDepthFrame().getCvFrame()
-        return np.stack((rgb_image, depth_image), axis=-1)
+        return rgb_image, depth_image
 
     def release_interfaces(self) -> None:
         with self._lock:
@@ -141,7 +150,7 @@ class OakD(StereoCamera, OakDPipelineComponent):
         This function aims to initialize the color camera with the settings specified.
         """
         rgb_cam: dai.node.Camera = self.pipeline.create(dai.node.Camera).build(
-            dai.CameraBoardSocket.RGB
+            dai.CameraBoardSocket.RGB,
         )
         return rgb_cam
 
@@ -168,22 +177,7 @@ class OakD(StereoCamera, OakDPipelineComponent):
         """
         self.pipeline.start()
 
-    def handle_dependents(self) -> None:
-        """
-        This function will handle the startup of all dependent nodes in order via DAG.
-        The way that it will do this is by having all dependents declare ahead of time what they will need
-        and this function will pass all parents to the dependents for them to do as they wish before
-        passing along to their children which will do the same.
-        This implementation is a bit of a nasty way to solve this problem, but still gives decent flexibility
-        for not a crazy amount of complexity.
-        Of course, most of the time, there will be maybe 3 dependents at most so this is still overkill.
-        """
-        parent_list: list[OakDPipelineComponent] = list(self.dependencies.static_order())
-        curr_idx: int = 1
-        while self.dependencies.is_active():
-            node_group: tuple = self.dependencies.get_ready()
-            curr_idx += len(node_group)
-            for node in node_group:
-                node: OakDPipelineComponent
-                node.initialize_pipelines(parent_list[:curr_idx])
-                self.dependencies.done(node)
+        while True:
+            img, depth = self.get_image_with_depth()
+            cv2.imshow("left", img)
+            cv2.waitKey(1)
