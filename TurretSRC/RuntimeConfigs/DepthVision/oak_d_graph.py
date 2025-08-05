@@ -3,21 +3,21 @@ from __future__ import annotations
 from typing import ClassVar, TYPE_CHECKING
 from graphlib import TopologicalSorter
 
-if TYPE_CHECKING:
-    from TurretSRC.StereoCameras.oak_d_stereo_camera import OakD
-    from TurretSRC.RuntimeConfigs.DepthVision.oak_d_node import OakDNode
-    from TurretSRC.RuntimeConfigs.DepthVision.oak_d_pipeline_component import OakDPipelineComponent
+from TurretSRC.StereoCameras.oak_d_stereo_camera import OakD
+from TurretSRC.RuntimeConfigs.DepthVision.oak_d_node import OakDNode
+from TurretSRC.RuntimeConfigs.DepthVision.oak_d_pipeline_component import OakDPipelineComponent
 
 
 class OakDGraph:
     registered_names: ClassVar[set[str]] = set()
 
-    def __init__(self, graph: dict[OakDNode, OakDNode | tuple[OakDNode]]):
+    def __init__(self, graph: dict[OakDNode, set[OakDNode]]):
         """
         Args:
             graph (OakDNode): A DAG of OakDNodes
         """
-        self.dependencies: TopologicalSorter = TopologicalSorter(graph).prepare()
+        self.dependencies: TopologicalSorter[OakDNode] = TopologicalSorter(graph)
+        self.dependencies.prepare()
 
     def _register(self, name: str) -> None:
         """
@@ -25,7 +25,7 @@ class OakDGraph:
         You should still maintain your name locally yourself.
         This is the default implementation in the interface. You probably should not change this.
         """
-        if not name or name.strip():
+        if not (name and name.strip()):
             raise ValueError("Name is empty or None")
 
         if name in self.registered_names:
@@ -45,7 +45,7 @@ class OakDGraph:
         Returns:
             This function returns a reference to the OakD base object for returning to the builder.
         """
-        top_level_deps: tuple[OakDNode] = self.dependencies.get_ready()
+        top_level_deps: tuple[OakDNode, ...] = self.dependencies.get_ready()
 
         oak_d: OakD = self._resolve_top_level_dependencies(top_level_deps)
 
@@ -57,8 +57,9 @@ class OakDGraph:
 
             if first_iteration:
                 node_group = top_level_deps
+                first_iteration = False
             else:
-                node_group: tuple[OakDNode] = self.dependencies.get_ready()
+                node_group: tuple[OakDNode, ...] = self.dependencies.get_ready()
 
             buffer: list[tuple[str, OakDPipelineComponent]] = []
             for node in node_group:
@@ -74,7 +75,7 @@ class OakDGraph:
 
         return oak_d
 
-    def _resolve_top_level_dependencies(self, top_level_deps: tuple[OakDNode]) -> OakD:
+    def _resolve_top_level_dependencies(self, top_level_deps: tuple[OakDNode, ...]) -> OakD:
         """
         This function will check the top level dependencies for both non-emptiness and also for the existence
         of the base OakD component.

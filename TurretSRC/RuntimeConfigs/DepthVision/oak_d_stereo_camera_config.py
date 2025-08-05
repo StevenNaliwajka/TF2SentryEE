@@ -2,12 +2,12 @@ from __future__ import annotations
 from src.RuntimeConfigs.depth_vision_configurable import DepthVisionConfigurable
 from TurretSRC.StereoCameras.oak_d_stereo_camera import OakD
 from TurretSRC.RuntimeConfigs.DepthVision.oak_d_node import OakDNode
-from oak_d_graph import OakDGraph
+from TurretSRC.RuntimeConfigs.DepthVision.oak_d_graph import OakDGraph
 
 
 class OakDBuilder(DepthVisionConfigurable):
 
-    def __init__(self, graph: dict[OakDNode, tuple[OakDNode]]) -> None:
+    def __init__(self, graph: dict[OakDNode, set[OakDNode]]) -> None:
         """
         Your dependency graph here should be a graph of OakDNodes
         You can use whatever naming convention you want, but you will have to edit the modules that you are using

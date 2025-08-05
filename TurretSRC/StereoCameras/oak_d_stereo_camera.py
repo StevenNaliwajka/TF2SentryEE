@@ -16,7 +16,15 @@ from src.IO.stereo_camera import StereoCamera
 
 class OakD(StereoCamera, OakDPipelineComponent):
 
-    def __init__(self) -> None:
+    def __init__(self,resolution: tuple[int, int] = (640, 480), cap_fps: int = 30,
+                 use_structured_light: bool = False) -> None:
+        """
+        Args:
+            resolution: The resolution of each camera in the camera pair.
+            cap_fps: The capture FPS of the cameras
+            use_structured_light: If we should use structured light to try to improve matching in textureless regions.
+                Note: works best indoors. Probably will not work well outdoors because of all the noise.
+        """
         # We will use a hack to assign None initially while not allowing None later on.
 
         # Nodes:
@@ -39,9 +47,9 @@ class OakD(StereoCamera, OakDPipelineComponent):
         self.rgb_d_messages: dai.MessageQueue = cast(dai.MessageQueue, None)
 
         # Camera attributes
-        self.resolution: tuple[int, int] = cast(tuple[int, int], None)
-        self.capture_fps: int = cast(int, None)
-        self.use_structured_light: bool = cast(bool, None)
+        self.resolution: tuple[int, int] = resolution
+        self.capture_fps: int = cap_fps
+        self.use_structured_light: bool = use_structured_light
 
         self._lock: threading.Lock = Lock()
         self.pipeline: dai.Pipeline = dai.Pipeline()
@@ -177,7 +185,6 @@ class OakD(StereoCamera, OakDPipelineComponent):
         """
         self.pipeline.start()
 
-        while True:
-            img, depth = self.get_image_with_depth()
-            cv2.imshow("left", img)
-            cv2.waitKey(1)
+        img, depth = self.get_image_with_depth()
+        cv2.imshow("left", img)
+        cv2.waitKey(1)

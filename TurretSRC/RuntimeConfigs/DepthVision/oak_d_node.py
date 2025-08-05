@@ -1,8 +1,10 @@
 from typing import TYPE_CHECKING
 from dataclasses import dataclass
+from TurretSRC.RuntimeConfigs.DepthVision.oak_d_pipeline_component import OakDPipelineComponent
 
-if TYPE_CHECKING:
-    from TurretSRC.RuntimeConfigs.DepthVision.oak_d_pipeline_component import OakDPipelineComponent
+
+# if TYPE_CHECKING:
+#     from TurretSRC.RuntimeConfigs.DepthVision.oak_d_pipeline_component import OakDPipelineComponent
 
 
 @dataclass(frozen=True)
