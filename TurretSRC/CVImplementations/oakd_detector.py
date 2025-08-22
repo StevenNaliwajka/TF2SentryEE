@@ -41,7 +41,7 @@ class OakDDetector(Detector, OakDPipelineComponent):
         self.camera: OakD = cast(OakD, parents[OAKD_NAME])
 
         detection_network: dai.node.DetectionNetwork = (self.camera.pipeline.create(dai.node.DetectionNetwork))
-        detection_network.build(self.camera.rgb_cam, self._model)
+        detection_network.build(self.camera.rgb_cam, self._model)  #TODO: Make this dependent on the sync module.
         self.PERSON_LABEL: int = detection_network.getClasses().index("person")
 
         detection_network.setConfidenceThreshold(self._hyperparams.get("confidence_threshold", 0.7))

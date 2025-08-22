@@ -70,7 +70,8 @@ class Arducam(Camera):
             if self.calibration_info is None:
                 raise ValueError("You never set the camera calibration info.")
 
-            return cv2.undistort(self.cap.retrieve(), self.calibration_info.old_intrinsic_matrix,
+        # TODO: FIX
+            return True, cv2.undistort(self.cap.retrieve(), self.calibration_info.old_intrinsic_matrix,
                                  self.calibration_info.distortion_coeffs, None,
                                  self.calibration_info.new_intrinsic_matrix)
         else:

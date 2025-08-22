@@ -54,6 +54,10 @@ class OakD(StereoCamera, OakDPipelineComponent):
         self._lock: threading.Lock = Lock()
         self.pipeline: dai.Pipeline = dai.Pipeline()
         self._device: dai.Device = self.pipeline.getDefaultDevice()
+        #TODO: remove
+        # self._device.setLogLevel(dai.LogLevel.DEBUG)
+        #
+        # self._device.setLogOutputLevel(dai.LogLevel.DEBUG)
 
     def initialize_pipelines(self, parents: dict[str, OakDPipelineComponent]) -> None:
 
@@ -68,7 +72,7 @@ class OakD(StereoCamera, OakDPipelineComponent):
         self.right_messages = self.left_out.createOutputQueue()
 
         self.stereo_depth = self.pipeline.create(dai.node.StereoDepth)
-        self.stereo_depth.setDefaultProfilePreset(dai.node.StereoDepth.PresetMode.DEFAULT)
+        self.stereo_depth.setDefaultProfilePreset(dai.node.StereoDepth.PresetMode.FAST_ACCURACY) # TODO remove fast acc
         self.stereo_depth.setRectifyEdgeFillColor(0)
         self.stereo_depth.enableDistortionCorrection(True)
 
@@ -158,7 +162,7 @@ class OakD(StereoCamera, OakDPipelineComponent):
         This function aims to initialize the color camera with the settings specified.
         """
         rgb_cam: dai.node.Camera = self.pipeline.create(dai.node.Camera).build(
-            dai.CameraBoardSocket.RGB,
+            dai.CameraBoardSocket.CAM_A,
         )
         return rgb_cam
 
@@ -169,10 +173,10 @@ class OakD(StereoCamera, OakDPipelineComponent):
             a double containing (left,right) camera pairs.
         """
         left_cam: dai.node.Camera = self.pipeline.create(dai.node.Camera).build(
-            dai.CameraBoardSocket.LEFT,
+            dai.CameraBoardSocket.CAM_B,
         )
         right_cam: dai.node.Camera = self.pipeline.create(dai.node.Camera).build(
-            dai.CameraBoardSocket.RIGHT,
+            dai.CameraBoardSocket.CAM_C,
         )
 
         return left_cam, right_cam
@@ -184,7 +188,7 @@ class OakD(StereoCamera, OakDPipelineComponent):
         detection or tracking or whatever else you want.
         """
         self.pipeline.start()
-
-        img, depth = self.get_image_with_depth()
-        cv2.imshow("left", img)
-        cv2.waitKey(1)
+        while True:
+            img, depth = self.get_image_with_depth()
+            cv2.imshow("left", img)
+            cv2.waitKey(1)
