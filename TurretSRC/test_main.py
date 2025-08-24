@@ -5,8 +5,8 @@ from FT232HCode.firingcontrollerft232h import FiringControllerFT232H
 from FT232HCode.peripheralcontrollerft232h import PeripheralControllerFT232H
 from FT232HCode.soundcontrollerft232h import SoundControllerFT232H
 from FT232HCode.wranglercontrollerft232h import WranglerControllerFT232H
-from IO.wranglercontroller import WranglerController
-from threading import Event, Thread
+from src.IO.wranglercontroller import WranglerController
+from threading import Event
 motor = MotorControllerFT232H()
 fire = FiringControllerFT232H()
 periph = PeripheralControllerFT232H()

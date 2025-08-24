@@ -4,7 +4,7 @@ import time
 import board
 import digitalio
 
-from IO.firingcontroller import FiringController
+from src.IO.firingcontroller import FiringController
 
 
 class FiringControllerFT232H(FiringController):

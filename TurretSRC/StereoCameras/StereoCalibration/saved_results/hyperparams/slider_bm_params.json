@@ -1,0 +1,91 @@
+[
+  {
+    "name": "num_disparities",
+    "tag": "num_disparities",
+    "tooltip": "How many pixels to slide the window over. \nThe larger it is, the larger the range of visible depths, but more computation is required.",
+    "min_val": 16,
+    "max_val": 256,
+    "step": 16
+  },
+  {
+    "name": "block_size",
+    "tag": "block_size",
+    "default_val": 21,
+    "tooltip": "Block size for the matching blocks. \nRecommended is 3-11 and an odd number is recommended since odd-sized blocks have a center.",
+    "min_val": 3,
+    "max_val": 31,
+    "step": 2
+  },
+  {
+    "name": "pre_filter_size",
+    "tag": "pre_filter_size",
+    "default_val": 9,
+    "tooltip": "The size of the prefilter cap",
+    "min_val": 5,
+    "max_val": 255,
+    "step": 2
+  },
+  {
+    "name": "pre_filter_cap",
+    "tag": "pre_filter_cap",
+    "default_val": 31,
+    "tooltip": "The pre-filtering phase, which normalizes image brightness and enhances texture in preparation for block matching. \nNormally you should not need to adjust these.",
+    "min_val": 1,
+    "max_val": 63,
+    "step": 1
+  },
+  {
+    "name": "texture_threshold",
+    "tag": "texture_threshold",
+    "default_val": 10,
+    "tooltip": "Filters out areas that don't have enough texture for reliable matching",
+    "min_val": 0,
+    "max_val": 1000,
+    "step": 1
+  },
+  {
+    "name": "uniqueness_ratio",
+    "tag": "uniqueness_ratio",
+    "default_val": 15,
+    "tooltip": "Another post-filtering step. \nIf the best matching disparity is not sufficiently better than every other disparity in the search range, the pixel is filtered out. \nYou can try tweaking this if texture_threshold and the speckle filtering are still letting through spurious matches.",
+    "min_val": 5,
+    "max_val": 20,
+    "step": 1
+  },
+  {
+    "name": "speckle_range",
+    "tag": "speckle_range",
+    "default_val": 0,
+    "tooltip": "Controls how close in value disparities must be to be considered part of the same blob.",
+    "min_val": 0,
+    "max_val": 40,
+    "step": 1
+  },
+  {
+    "name": "speckle_window_size",
+    "tag": "speckle_window_size",
+    "default_val": 0,
+    "tooltip": "Number of pixels below which a disparity blob is dismissed as speckle.",
+    "min_val": 0,
+    "max_val": 300,
+    "step": 1
+  },
+  {
+    "name": "disp12_max_diff",
+    "tag": "disp12_max_diff",
+    "default_val": -1,
+    "tooltip": "Maximum pixel difference for the disparity calculation.",
+    "min_val": -1,
+    "max_val": 20,
+    "step": 2
+  },
+  {
+    "name": "min_disparity",
+    "tag": "min_disparity",
+    "default_val": 0,
+    "tooltip": "The offset from the x-position of the left pixel at which to begin searching. \nThis should usually be 0 unless your rectification algorithm is shifting your image",
+    "min_val": -100,
+    "max_val": 100,
+    "step": 1
+  }
+]

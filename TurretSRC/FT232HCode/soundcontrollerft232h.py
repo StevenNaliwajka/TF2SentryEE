@@ -1,6 +1,6 @@
 # Created by Steven Naliwajka, https://github.com/ConvexBurrito5/TF2SentryEE
-from IO.soundcontroller import SoundController
-from playsound import playsound
+from src.IO.soundcontroller import SoundController
+from playsound3 import playsound
 import os
 
 class SoundControllerFT232H(SoundController):
