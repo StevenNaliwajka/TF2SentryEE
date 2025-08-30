@@ -41,15 +41,15 @@ class OpenCVStereoMatcher(StereoMatcher):
     def rectify_stereo_pair(self, left_image: np.ndarray, right_image: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         rectified_left: np.ndarray = cv2.remap(left_image,
                                                *self._left_stereo_map,
-                                               cv2.INTER_LINEAR,  # Slow but we only compute once.
-                                               cv2.BORDER_CONSTANT,
-                                               0)  # Sets default border value to 0 (blk)
+                                               interpolation=cv2.INTER_LINEAR,  # Slow but we only compute once.
+                                               borderMode=cv2.BORDER_CONSTANT,
+                                               borderValue=0)  # Sets default border value to 0 (blk)
 
         rectified_right: np.ndarray = cv2.remap(right_image,
                                                 *self._right_stereo_map,
-                                                cv2.INTER_LINEAR,
-                                                cv2.BORDER_CONSTANT,
-                                                0)
+                                                interpolation=cv2.INTER_LINEAR,
+                                                borderMode=cv2.BORDER_CONSTANT,
+                                                borderValue=0)
         return rectified_left, rectified_right
 
     def get_disparity_map(self, left_image: np.ndarray, right_image: np.ndarray) -> np.ndarray:

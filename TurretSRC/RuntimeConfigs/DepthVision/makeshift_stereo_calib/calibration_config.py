@@ -1,5 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+from TurretSRC.FT232HCode.Camera.arducam import Arducam
+from TurretSRC.StereoCameras.makeshift_stereo_camera import MakeshiftStereoCamera
 from pathlib import Path
 
 if TYPE_CHECKING:
@@ -7,7 +9,7 @@ if TYPE_CHECKING:
 
 from typing import TypedDict
 
-STEREO_DIR: Path = Path("IOImplementations/TurretSRC/StereoCameras/StereoCalibration")
+STEREO_DIR: Path = Path("StereoCameras/StereoCalibration")
 
 
 class Config(TypedDict):
@@ -31,7 +33,7 @@ class Config(TypedDict):
 
 
 config: Config = {
-    # "stereo_camera": MakeshiftStereoCamera(Arducam(0), Arducam(1)),
+    # "stereo_camera": MakeshiftStereoCamera(Arducam(2), Arducam(4)),
     "left_stereo_path": STEREO_DIR / "stereo_images/calibration_images/stereo_l",
     "right_stereo_path": STEREO_DIR / "stereo_images/calibration_images/stereo_r",
     "num_photos_to_take": 30,
@@ -45,9 +47,7 @@ config: Config = {
     "general_stereo_info_path": STEREO_DIR / "saved_results/camera_calib/general_stereo_info.npz",
     "left_stereo_map_path": STEREO_DIR / "saved_results/camera_calib/stereo_left.npz",
     "right_stereo_map_path": STEREO_DIR / "saved_results/camera_calib/stereo_right.npz",
-    "left_matcher_path": Path("IOImplementations/TurretSRC/StereoCameras/StereoCalibration/stereo_images"
-                              "/matcher_images/im2.png"),
-    "right_matcher_path": Path("IOImplementations/TurretSRC/StereoCameras/StereoCalibration/stereo_images"
-                               "/matcher_images/im6.png"),
+    "left_matcher_path": Path("StereoCameras/StereoCalibration/stereo_images/matcher_images/steven_room_l.png"),
+    "right_matcher_path": Path("StereoCameras/StereoCalibration/stereo_images/matcher_images/steven_room_r.png"),
     "hyperparam_save_path": STEREO_DIR / "saved_results/hyperparams/stereo_bm_default_values.json"
 }

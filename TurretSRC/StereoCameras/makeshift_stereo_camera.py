@@ -54,7 +54,7 @@ class MakeshiftStereoCamera(StereoCamera):
         self.baseline_mm: float = baseline_length_mm
         self.focal_length_px: np.ndarray = focal_length_px
 
-    def get_images(self, timeout_secs: float = 1e-1) -> tuple[cv2.typing.MatLike, cv2.typing.MatLike]:
+    def get_images(self, timeout_secs: float = 1) -> tuple[cv2.typing.MatLike, cv2.typing.MatLike]:
         """
         This function assumes that the cameras are parallel to each other AND that the cameras share at lest a little
         bit of the frame with each other.
@@ -62,8 +62,8 @@ class MakeshiftStereoCamera(StereoCamera):
         timeout_secs: float the number of seconds before raising an exception.
             (This is necessary because we don't want desync between the cameras)
         """
-        left_success: Future = self._executor.submit(self._left_camera.decode_frame)
-        right_success: Future = self._executor.submit(self._right_camera.decode_frame)
+        left_success: Future = self._executor.submit(self._left_camera.get_frame)
+        right_success: Future = self._executor.submit(self._right_camera.get_frame)
 
         left_success.result(timeout_secs)
         right_success.result(timeout_secs)

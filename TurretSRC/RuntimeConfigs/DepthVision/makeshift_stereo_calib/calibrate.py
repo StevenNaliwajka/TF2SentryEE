@@ -1,7 +1,7 @@
 from __future__ import annotations
 import argparse
 import TurretSRC.StereoCameras.StereoCalibration.stereo_calibrate as calibrator
-from src import IOImplementations as calib_config
+from TurretSRC.RuntimeConfigs.DepthVision.makeshift_stereo_calib.calibration_config import config
 from TurretSRC.StereoCameras.StereoCalibration.stereo_bm_calibrator import StereoBMCalibrator
 
 from typing import TYPE_CHECKING
@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from TurretSRC.StereoCameras.StereoCalibration.stereo_matcher_calibrator import \
         StereoMatcherCalibrator
-    from TurretSRC.RuntimeConfigs.DepthVision.makeshift_stereo_calib.calibration_config import Config
 
 if __name__ == '__main__':
     parser: argparse.ArgumentParser = argparse.ArgumentParser(
@@ -20,15 +19,14 @@ if __name__ == '__main__':
                         help="Flushes the stereo images and allows you to flush the images already taken"
                              "Flushing will DELETE the previously stored images")
     args = parser.parse_args()
-    config: Config = calib_config.config
-
-    calibrator.take_photos(config["stereo_camera"],
-                           config["left_stereo_path"],
-                           config["right_stereo_path"],
-                           config["num_photos_to_take"],
-                           args.flush)
-
-    calibrator.check_images(config["left_stereo_path"], config["right_stereo_path"], config["exclusion_dir"])
+    #
+    # calibrator.take_photos(config["stereo_camera"],
+    #                        config["left_stereo_path"],
+    #                        config["right_stereo_path"],
+    #                        config["num_photos_to_take"],
+    #                        args.flush)
+    #
+    # calibrator.check_images(config["left_stereo_path"], config["right_stereo_path"], config["exclusion_dir"])
 
     obj_pts, left_camera_info, right_camera_info = calibrator.calibrate_both_cameras(
         config["chessboard_inner_pt_dim"], config["square_size_mm"],

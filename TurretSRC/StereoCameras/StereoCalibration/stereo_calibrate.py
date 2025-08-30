@@ -380,6 +380,7 @@ def calibrate_both_cameras(
             else:
                 print("Unable to find chessboard corners for the right image with filename ", file_name, "Skipping "
                                                                                                          "pair.")
+            continue
 
         obj_pts.append(objp)
         # Smaller window here will probably be better for finding the actual chessboards, but will take longer.
@@ -438,7 +439,7 @@ def calibrate_both_cameras(
             rotation_vector=rot_vect_r[0],
             translation_vector=trans_vect_r[0],
             distortion_coeffs=dist_r,
-            image_size=inv_left_shape,
+            image_size=inv_right_shape,
             valid_roi=valid_pix_roi_r,
             rmse=rmse_r
         )
@@ -456,8 +457,8 @@ def calibrate_stereo(
         right_camera_info: CameraCalibrationResults,
         term_criteria: cv2.typing.TermCriteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 ) -> tuple[StereoCalibrationResults, tuple, tuple]:
-    img_pts_l, old_int_mat_l, new_int_mat_l, dist_l, rot_l, trans_l, dist_l, left_img_size, _ = left_camera_info.get_calibration_info()
-    img_pts_r, old_int_mat_r, new_int_mat_r, dist_r, rot_r, trans_r, dist_r, right_img_size, _ = right_camera_info.get_calibration_info()
+    img_pts_l, old_int_mat_l, new_int_mat_l, dist_l, rot_l, trans_l, left_img_size, _, _ = left_camera_info.get_calibration_info()
+    img_pts_r, old_int_mat_r, new_int_mat_r, dist_r, rot_r, trans_r, right_img_size, _, _ = right_camera_info.get_calibration_info()
 
     flags: int = 0
     flags |= cv2.CALIB_FIX_INTRINSIC  # Because this enum is a hex number (to allow for multiple calibration
@@ -468,7 +469,7 @@ def calibrate_stereo(
     # noinspection PyTypeChecker
     # This function will find the Essential matrix and the Fundamental matrix between the two views.
     # Essentially the relationship between the two stereo views.
-    reproj_error, intrinsic_mat_l, dist_l, new_mtx_r, dist_r, rot_mat, trans_vec, ess_matrix, fund_mat = \
+    reproj_error, new_mtx_l, dist_l, new_mtx_r, dist_r, rot_mat, trans_vec, ess_matrix, fund_mat = \
         cv2.stereoCalibrate(
             obj_pts, img_pts_l,
             img_pts_r,
@@ -494,18 +495,18 @@ def calibrate_stereo(
     # we want to determine the rotation and vertical offset of this stereo pair in order to rectify the image pair.
 
     # noinspection PyTypeChecker
-    rect_l, rect_r, proj_mat_l, proj_mat_r, Q, roiL, roi_r = cv2.stereoRectify(intrinsic_mat_l, dist_l, new_mtx_r,
+    rect_l, rect_r, proj_mat_l, proj_mat_r, Q, roiL, roi_r = cv2.stereoRectify(new_mtx_l, dist_l, new_mtx_r,
                                                                                dist_r,
                                                                                left_img_size, rot_mat, trans_vec,
                                                                                rectify_scale, (0, 0))
 
     # We use CV_16SC2 here because we want to compute the stereo disparity map.
-    left_stereo_map: tuple[np.ndarray, np.ndarray] = cv2.initUndistortRectifyMap(intrinsic_mat_l, dist_l, rect_l,
+    left_stereo_map: tuple[np.ndarray, np.ndarray] = cv2.initUndistortRectifyMap(new_mtx_l, dist_l, rect_l,
                                                                                  proj_mat_l,
-                                                                                 right_img_size, cv2.CV_16SC2)
+                                                                                 left_img_size, cv2.CV_16SC2)
     # Of format (uint16, uint16)
     right_stereo_map: tuple[np.ndarray, np.ndarray] = cv2.initUndistortRectifyMap(new_mtx_r, dist_r, rect_r, proj_mat_r,
-                                                                                  left_img_size, cv2.CV_16SC2)
+                                                                                  right_img_size, cv2.CV_16SC2)
     print(baseline_length_mm)
 
     return general_stereo_info, left_stereo_map, right_stereo_map
