@@ -1,0 +1,23 @@
+Main Board for Turret.
+
+- Parent, Receive data to main turret board.
+
+INPUT:
+- 1 12V + GND for Battery Array
+- 1 12V + GND for Power Switch
+
+OUTPUT:
+- 1 GPIO + GND for LED
+- 1 GPIO + GND for Lazer
+
+output:
+- 1 GPIO + GND for battery display.
+- 1 GPIO + GND spare
+
+MISC:
+- try without antenna
+- ESP32-S3-WROOM-1U-N16R8 for logic + control
+- If can be charged off USB-C While it runs thats even better, 120V if else.
+- Run off a battery for a while when not being used.
+- 1 LED on the board for ON
+- GEOPOSITIONING with the chip

@@ -450,7 +450,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "TurretMainBoard.kicad_pro",
+    "filename": "WranglerBoardV2.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -608,6 +608,11 @@
     "subpart_first_id": 65,
     "subpart_id_separator": 0
   },
-  "sheets": [],
+  "sheets": [
+    [
+      "47afd97c-ab2e-4975-ad8d-5655c12b636e",
+      "Root"
+    ]
+  ],
   "text_variables": {}
 }

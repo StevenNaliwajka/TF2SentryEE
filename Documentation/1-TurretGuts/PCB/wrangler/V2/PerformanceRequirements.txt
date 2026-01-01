@@ -1,0 +1,20 @@
+Main Board for Wrangler.
+
+- Remote control, send data to main turret board.
+
+input:
+- 4 GPIO + GND for Joystick.
+- 1 GPIO + GND for trigger.
+- 2 GPIO + GND for Power Switch.
+- 1 GPIO + GND for 18650 Battery
+
+output:
+- 1 GPIO + GND for battery display.
+- 1 GPIO + GND for 'on' display.
+- 1 GPIO + GND spare
+
+MISC:
+- SMA antenna
+- ESP32-S3-WROOM-1U-N16R8 for logic + control
+- Charge while its being used.
+- Run off a battery for a while when not being used.
